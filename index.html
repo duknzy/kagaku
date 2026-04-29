@@ -13,7 +13,7 @@
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
         :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
 
-        /* index(9)と完全に同一のベースセッティング */
+        /* index(9).html の純正CSSを完全移植 */
         html, body {
             height: 100%;
             width: 100%;
@@ -37,7 +37,7 @@
         }
 
         /* index(9)の背景動画と同じ完全固定レイヤーの仕様 */
-        #custom-bg, #bg-overlay {
+        #custom-bg-img {
             position: fixed;
             right: 0;
             bottom: 0;
@@ -45,20 +45,18 @@
             min-height: 100%;
             width: auto;
             height: auto;
-        }
-        #custom-bg {
-            z-index: -2;
-            background-size: cover;
-            background-position: center;
-            background-color: #0b0e14;
-            transition: background-image 0.5s ease;
-        }
-        #bg-overlay {
             z-index: -1;
-            background: rgba(11, 14, 20, 0.75);
+            object-fit: cover;
+            filter: brightness(0.6);
         }
 
-        /* index(9)と同一のスクロールコンテナ */
+        .carbon-bg {
+            background-image: none;
+            background-color: transparent;
+        }
+
+        .f1-font { font-family: 'Chakra Petch', sans-serif; }
+
         #app {
             height: 100%;
             overflow-y: auto;
@@ -99,18 +97,20 @@
         .option-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
         .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        .f1-font { font-family: 'Chakra Petch', sans-serif; }
-
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+
+        @media only screen and (max-width: 768px) {
+            html { font-size: clamp(12px, 3.5vw, 16px); }
+            .carbon-bg { background-attachment: scroll; min-height: 100vh; }
+        }
     </style>
 </head>
-<body>
+<body class="carbon-bg text-sm md:text-base">
 
-    <div id="custom-bg"></div>
-    <div id="bg-overlay"></div>
+    <img id="custom-bg-img" src="" alt="">
 
     <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
         <div class="flex flex-col items-start">
@@ -134,7 +134,7 @@
             <button id="gate-login-btn" class="w-full f1-font bg-white text-black px-8 py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
         </div>
 
-        <div id="start-screen" class="hidden flex flex-col flex-1 mt-12 animate-slide-in w-full pb-10">
+        <div id="start-screen" class="hidden race-card p-4 md:p-6 rounded-2xl relative z-10 animate-slide-in my-auto w-full">
             <div class="flex justify-between items-end border-b border-gray-700 pb-4 px-2">
                 <div class="flex items-center gap-3">
                     <div id="paddock-icon-container" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 overflow-hidden flex items-center justify-center hidden">
@@ -150,7 +150,7 @@
             </div>
 
             <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar shrink-0"></div>
-            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 content-start"></div>
+            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4"></div>
         </div>
 
         <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
@@ -199,7 +199,7 @@
             <div id="feedback" class="h-8 mt-4 text-center font-bold uppercase tracking-widest"></div>
         </div>
 
-        <div id="result-screen" class="hidden race-card p-8 rounded-2xl shadow-2xl text-center flex flex-col justify-center items-center my-auto max-w-2xl mx-auto w-full z-20">
+        <div id="result-screen" class="hidden race-card p-8 rounded-2xl shadow-2xl text-center animate-slide-in my-auto max-w-2xl mx-auto w-full z-20">
             <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
             <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
             <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
@@ -213,7 +213,7 @@
         document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
         document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
 
-        class ChemQuizV10 {
+        class ChemQuizV11 {
             constructor() {
                 if (typeof appData === 'undefined') {
                     alert("Telemetry Error: data.js が見つからない。同じフォルダに作成しろ。");
@@ -242,7 +242,8 @@
                 if (typeof appConfig === 'undefined') return;
                 
                 if (appConfig.wallpaperUrl) {
-                    document.getElementById('custom-bg').style.backgroundImage = `url('${appConfig.wallpaperUrl}')`;
+                    // index(9)と同じ方法で画像のsrcに直接ぶち込む
+                    document.getElementById('custom-bg-img').src = appConfig.wallpaperUrl;
                 }
                 
                 if (appConfig.appIconUrl) {
@@ -500,7 +501,7 @@
             }
         }
         
-        window.quiz = new ChemQuizV10();
+        window.quiz = new ChemQuizV11();
     </script>
 </body>
 </html>
