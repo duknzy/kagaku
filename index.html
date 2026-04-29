@@ -24,7 +24,6 @@
         #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; }
         #app::-webkit-scrollbar { display: none; }
         
-        /* 化学式の上下付き文字の調整 */
         sub { font-size: 0.65em; bottom: -0.2em; position: relative; }
         sup { font-size: 0.65em; top: -0.4em; position: relative; }
 
@@ -429,10 +428,13 @@
                 `
             }
         };
+
         class ChemQuizV4 {
             constructor() {
                 this.masterQuestions = [];
                 this.questions = [];
+                this.globalAnswers = [];
+                this.globalQuestions = [];
                 this.currentIndex = 0;
                 this.missCount = 0;
                 this.tireLimit = 20;
@@ -441,25 +443,37 @@
                 this.stintActive = false;
                 this.isLocked = false; 
 
+                this.buildGlobalPool();
                 this.initStint();
                 this.initUI();
             }
 
-            // --- 新機能：化学式の自動フォーマットエンジン ---
+            // --- 新機能：全データを収集するグローバルプール ---
+            buildGlobalPool() {
+                let ansPool = [];
+                let qPool = [];
+                for (let cat in appData) {
+                    for (let sub in appData[cat]) {
+                        const raw = appData[cat][sub];
+                        const parsed = raw.trim().split('\n').map(line => {
+                            const m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
+                            return m ? { q: m[1].trim(), a: m[2].trim() } : null;
+                        }).filter(x => x);
+                        parsed.forEach(p => {
+                            ansPool.push(p.a);
+                            qPool.push(p.q);
+                        });
+                    }
+                }
+                this.globalAnswers = [...new Set(ansPool)];
+                this.globalQuestions = [...new Set(qPool)];
+            }
+
             formatChem(text) {
                 if (!text) return "";
-                
-                // 1. カッコ書きのイオン価数 (例: CrO4(2-) -> CrO4^2-)
                 let formatted = text.replace(/\((\d*[\+\-])\)/g, '<sup>$1</sup>');
-                
-                // 2. 通常のイオン価数 (例: Cu2+, Ag+, Cl-)
-                // 英字または閉じカッコの直後の「数字+符号」または「符号」で、その後に英数字が続かない場合のみ適用
                 formatted = formatted.replace(/([a-zA-Z\]])(\d+[\+\-]|[\+\-])(?![a-zA-Z0-9])/g, '$1<sup>$2</sup>');
-                
-                // 3. 化学式の下付き数字 (例: H2O, CO2, Ca(OH)2)
-                // 英字または閉じカッコの直後の数字を下付きに
                 formatted = formatted.replace(/([a-zA-Z\)])(\d+)/g, '$1<sub>$2</sub>');
-                
                 return formatted;
             }
 
@@ -556,22 +570,75 @@
                 this.showQuestion();
             }
 
+            // --- 新機能：類似度スコアリングエンジン ---
             showQuestion() {
                 const q = this.questions[this.currentIndex];
                 document.getElementById('lap-counter').innerText = `LAP ${this.currentIndex + 1}/${this.questions.length}`;
                 
-                // 問題文をフォーマットしてinnerHTMLで流し込む
                 const rawQText = this.isReverse ? q.a : q.q;
                 document.getElementById('target-word').innerHTML = this.formatChem(rawQText);
                 
                 const ans = this.isReverse ? q.q : q.a;
-                let pool = [...new Set(this.masterQuestions.map(x => this.isReverse ? x.q : x.a))].filter(x => x !== ans);
-                let options = [ans, ...pool.sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
+                
+                // 全てのデータから候補を取得
+                let globalPool = this.isReverse ? this.globalQuestions : this.globalAnswers;
+                let pool = globalPool.filter(x => x !== ans);
+
+                // スコアリング（似ている選択肢を高得点にする）
+                pool.sort((a, b) => {
+                    let scoreA = 0;
+                    let scoreB = 0;
+
+                    // 1. 文字数の近さ
+                    scoreA -= Math.abs(a.length - ans.length);
+                    scoreB -= Math.abs(b.length - ans.length);
+
+                    // 2. 「A:」等のフォーマット一致
+                    const hasA = (str) => /A[:：]/.test(str);
+                    if (hasA(ans)) {
+                        if (hasA(a)) scoreA += 100;
+                        if (hasA(b)) scoreB += 100;
+                    } else {
+                        if (hasA(a)) scoreA -= 100;
+                        if (hasA(b)) scoreB -= 100;
+                    }
+
+                    // 3. 不等号のフォーマット一致
+                    const hasIneq = (str) => /[<><＞＜]/.test(str);
+                    if (hasIneq(ans)) {
+                        if (hasIneq(a)) scoreA += 100;
+                        if (hasIneq(b)) scoreB += 100;
+                    } else {
+                        if (hasIneq(a)) scoreA -= 100;
+                        if (hasIneq(b)) scoreB -= 100;
+                    }
+
+                    return scoreB - scoreA; // 降順
+                });
+
+                // 上位8個からランダムに抽出
+                let topCandidates = pool.slice(0, 8).sort(() => Math.random() - 0.5);
+                let distractors = topCandidates.slice(0, 3);
+
+                // もし「A:〇〇、B:✕✕」の形式なら、AとBを逆転させた強烈な引っかけを生成
+                if (!this.isReverse && /A[:：].*B[:：]/.test(ans)) {
+                    let swapped = ans.replace(/(A[:：])([^,、]+)([,、]\s*B[:：])(.+)/, '$1$4$3$2');
+                    if (swapped !== ans && !distractors.includes(swapped)) {
+                        distractors.pop(); // 1つ消して
+                        distractors.push(swapped); // ダミーをねじ込む
+                    }
+                }
+
+                // データ不足時のフェイルセーフ
+                while (distractors.length < 3) {
+                    distractors.push(`[Dummy] データ不足 ${distractors.length + 1}`);
+                }
+
+                let options = [ans, ...distractors].sort(() => Math.random() - 0.5);
 
                 const container = document.getElementById('options-container');
                 container.innerHTML = '';
                 
-                // 選択肢もフォーマットしてDOMに追加（エスケープ問題を回避）
                 options.forEach(opt => {
                     const btn = document.createElement('button');
                     btn.className = "option-btn bg-gray-800 text-white p-4 rounded-xl border border-gray-700 text-left text-sm md:text-base font-bold";
