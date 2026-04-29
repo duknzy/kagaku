@@ -13,34 +13,61 @@
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
         :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
 
-        /* V10: 画面全体を完全にロックし、背景を固定レイヤーに分離（英単語アプリと完全同一仕様） */
+        /* index(9)と完全に同一のベースセッティング */
         html, body {
-            position: fixed; top: 0; left: 0; right: 0; bottom: 0;
+            height: 100%;
+            width: 100%;
             overflow: hidden; 
-            margin: 0; padding: 0;
-            background-color: #0b0e14;
-            color: #e2e8f0; font-family: 'Inter', sans-serif;
-            touch-action: manipulation; overscroll-behavior: none;
-            -webkit-user-select: none; user-select: none;
-            -webkit-tap-highlight-color: transparent; 
+            background-color: transparent;
+            color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            -webkit-font-smoothing: antialiased;
+            touch-action: manipulation;
+            overscroll-behavior: none;
+            -webkit-user-select: none;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-text-size-adjust: 100%;
+            text-size-adjust: 100%;
         }
 
+        body {
+            padding-top: max(1rem, env(safe-area-inset-top));
+            padding-bottom: max(1rem, env(safe-area-inset-bottom));
+        }
+
+        /* index(9)の背景動画と同じ完全固定レイヤーの仕様 */
         #custom-bg, #bg-overlay {
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            position: fixed;
+            right: 0;
+            bottom: 0;
+            min-width: 100%;
+            min-height: 100%;
+            width: auto;
+            height: auto;
         }
         #custom-bg {
-            background-size: cover; background-position: center; z-index: -2; transition: background-image 0.5s ease;
+            z-index: -2;
+            background-size: cover;
+            background-position: center;
+            background-color: #0b0e14;
+            transition: background-image 0.5s ease;
         }
         #bg-overlay {
-            background: rgba(11, 14, 20, 0.75); z-index: -1;
+            z-index: -1;
+            background: rgba(11, 14, 20, 0.75);
         }
 
-        /* スクロールするのはこの内部コンテナのみ。下部の空白を絶対に許さない */
-        #app { 
-            position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            overflow-y: auto; -webkit-overflow-scrolling: touch; 
-            padding: max(1rem, env(safe-area-inset-top)) 1rem max(1rem, env(safe-area-inset-bottom)) 1rem; 
-            z-index: 10; scrollbar-width: none; 
+        /* index(9)と同一のスクロールコンテナ */
+        #app {
+            height: 100%;
+            overflow-y: auto;
+            -webkit-overflow-scrolling: touch;
+            padding: 1rem;
+            position: relative;
+            scrollbar-width: none;
+            -ms-overflow-style: none;
+            z-index: 10;
         }
         #app::-webkit-scrollbar { display: none; }
         
@@ -72,6 +99,8 @@
         .option-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
         .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
+        .f1-font { font-family: 'Chakra Petch', sans-serif; }
+
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
@@ -84,9 +113,9 @@
     <div id="bg-overlay"></div>
 
     <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
-        <div class="flex flex-col">
-            <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter">Live Stint Time</span>
-            <span id="stint-clock" class="f1-font text-white text-xl font-bold">00:00</span>
+        <div class="flex flex-col items-start">
+            <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter leading-none">Live Stint Time</span>
+            <span id="stint-clock" class="f1-font text-white text-xl font-bold leading-none">00:00</span>
         </div>
         <div id="red-flag-indicator" class="flex items-center gap-2">
             <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
@@ -94,20 +123,18 @@
         </div>
     </div>
 
-    <div id="app" class="w-full max-w-6xl mx-auto">
+    <div id="app" class="w-full max-w-6xl mx-auto flex flex-col">
         
-        <div id="gate-wrap" class="flex flex-col justify-center min-h-[80vh] pt-12">
-            <div id="gate-screen" class="race-card p-8 rounded-2xl text-center w-full max-w-md mx-auto shadow-2xl animate-slide-in">
-                <div class="flex justify-center mb-6">
-                    <img id="gate-app-icon" src="" class="w-24 h-24 rounded-2xl border-2 border-gray-700 object-cover shadow-lg hidden">
-                </div>
-                <h1 class="f1-font text-5xl mb-2 font-bold text-white italic">RB<span class="text-red-600">-28</span></h1>
-                <p class="text-gray-400 font-mono text-[10px] uppercase tracking-[0.4em] mb-12">Chem Hybrid Evolution</p>
-                <button id="gate-login-btn" class="w-full f1-font bg-white text-black py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
+        <div id="gate-screen" class="race-card p-8 rounded-2xl shadow-2xl text-center relative overflow-hidden animate-slide-in my-auto max-w-md mx-auto w-full">
+            <div class="flex justify-center mb-6">
+                <img id="gate-app-icon" src="" class="w-24 h-24 rounded-2xl border-2 border-gray-700 object-cover shadow-lg hidden">
             </div>
+            <h1 class="f1-font text-5xl mb-2 font-bold text-white italic tracking-wider">RB<span class="text-red-600">-28</span></h1>
+            <p class="text-gray-400 font-mono text-xs uppercase tracking-[0.4em] mb-12">Chem Hybrid Evolution</p>
+            <button id="gate-login-btn" class="w-full f1-font bg-white text-black px-8 py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
         </div>
 
-        <div id="start-screen" class="hidden pt-16 pb-8 animate-slide-in w-full">
+        <div id="start-screen" class="hidden flex flex-col flex-1 mt-12 animate-slide-in w-full pb-10">
             <div class="flex justify-between items-end border-b border-gray-700 pb-4 px-2">
                 <div class="flex items-center gap-3">
                     <div id="paddock-icon-container" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 overflow-hidden flex items-center justify-center hidden">
@@ -122,8 +149,8 @@
                 </div>
             </div>
 
-            <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar"></div>
-            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4"></div>
+            <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar shrink-0"></div>
+            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 content-start"></div>
         </div>
 
         <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
@@ -156,31 +183,27 @@
             </div>
         </div>
 
-        <div id="quiz-wrap" class="hidden flex flex-col justify-center min-h-[80vh] pt-12">
-            <div id="quiz-screen" class="race-card p-6 rounded-2xl shadow-2xl flex flex-col justify-between w-full max-w-4xl mx-auto">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <span id="quiz-title" class="f1-font text-[10px] text-gray-400 uppercase tracking-widest">SECTION</span>
-                        <h4 id="lap-counter" class="f1-font text-white font-bold text-xl">LAP 1/20</h4>
-                    </div>
-                    <div id="timer" class="f1-font text-3xl text-yellow-400 font-mono tracking-tighter">0.00s</div>
+        <div id="quiz-screen" class="hidden race-card p-6 rounded-2xl shadow-2xl relative flex flex-col justify-between my-auto min-h-[500px] w-full max-w-4xl mx-auto z-20">
+            <div class="flex justify-between items-start mb-6">
+                <div>
+                    <span id="quiz-title" class="f1-font text-[10px] text-gray-400 uppercase tracking-widest">SECTION</span>
+                    <h4 id="lap-counter" class="f1-font text-white font-bold text-xl">LAP 1/20</h4>
                 </div>
-                
-                <div class="flex-grow flex flex-col justify-center items-center py-4">
-                    <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-black/40 rounded-r-lg"></h2>
-                    <div id="options-container" class="grid grid-cols-1 gap-3 mt-8 w-full max-w-2xl"></div>
-                </div>
-                <div id="feedback" class="h-8 mt-4 text-center font-bold uppercase tracking-widest"></div>
+                <div id="timer" class="f1-font text-3xl text-yellow-400 font-mono tracking-tighter">0.00s</div>
             </div>
+            
+            <div class="flex-grow flex flex-col justify-center items-center py-4">
+                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-black/40 rounded-r-lg"></h2>
+                <div id="options-container" class="grid grid-cols-1 gap-3 mt-8 w-full max-w-2xl"></div>
+            </div>
+            <div id="feedback" class="h-8 mt-4 text-center font-bold uppercase tracking-widest"></div>
         </div>
 
-        <div id="result-wrap" class="hidden flex flex-col justify-center min-h-[80vh] pt-12">
-            <div id="result-screen" class="race-card p-8 rounded-2xl shadow-2xl text-center flex flex-col justify-center items-center w-full max-w-2xl mx-auto">
-                <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
-                <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
-                <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
-                <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-red-900/50">Return to Paddock</button>
-            </div>
+        <div id="result-screen" class="hidden race-card p-8 rounded-2xl shadow-2xl text-center flex flex-col justify-center items-center my-auto max-w-2xl mx-auto w-full z-20">
+            <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
+            <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
+            <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
+            <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-red-900/50">Return to Paddock</button>
         </div>
     </div>
 
@@ -219,7 +242,6 @@
                 if (typeof appConfig === 'undefined') return;
                 
                 if (appConfig.wallpaperUrl) {
-                    // 背景用固定レイヤーに画像をセット（絶対にズレない）
                     document.getElementById('custom-bg').style.backgroundImage = `url('${appConfig.wallpaperUrl}')`;
                 }
                 
@@ -279,7 +301,7 @@
 
             initUI() {
                 document.getElementById('gate-login-btn').onclick = () => {
-                    document.getElementById('gate-wrap').classList.add('hidden');
+                    document.getElementById('gate-screen').classList.add('hidden');
                     document.getElementById('start-screen').classList.remove('hidden');
                     this.stintActive = true;
                     this.resumeTimer();
@@ -346,7 +368,7 @@
                 
                 this.closeSetup();
                 document.getElementById('start-screen').classList.add('hidden');
-                document.getElementById('quiz-wrap').classList.remove('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
                 
                 this.lapInterval = setInterval(() => {
                     document.getElementById('timer').innerText = ((Date.now() - this.startTime)/1000).toFixed(2) + 's';
@@ -442,15 +464,15 @@
 
             finish() {
                 clearInterval(this.lapInterval);
-                document.getElementById('quiz-wrap').classList.add('hidden');
-                document.getElementById('result-wrap').classList.remove('hidden');
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
                 const acc = ((this.questions.length - this.missCount) / this.questions.length * 100).toFixed(1);
                 document.getElementById('accuracy-display').innerText = `${acc}%`;
                 document.getElementById('rank-text').innerText = `TIME: ${document.getElementById('timer').innerText} | MISSES: ${this.missCount}`;
             }
 
             returnToPaddock() {
-                document.getElementById('result-wrap').classList.add('hidden');
+                document.getElementById('result-screen').classList.add('hidden');
                 document.getElementById('start-screen').classList.remove('hidden');
             }
 
