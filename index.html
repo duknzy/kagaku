@@ -1,0 +1,582 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="RB-28 Chem">
+    <link rel="apple-touch-icon" href="icon.png">
+    <meta name="theme-color" content="#0b0e14">
+    
+    <title>RB-28 Chemistry Hybrid Learning System V2</title>
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Bungee&family=Chakra+Petch:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400;1,500;1,600;1,700&display=swap');
+        
+        :root {
+            --f1-red: #e10600;
+            --rb-navy: #0b0e14;
+        }
+
+        html, body {
+            height: 100%; width: 100%; overflow: hidden; 
+            background-color: #0b0e14; color: #e2e8f0;
+            font-family: 'Inter', sans-serif;
+            touch-action: manipulation; overscroll-behavior: none;
+            -webkit-user-select: none; user-select: none;
+        }
+
+        .f1-font { font-family: 'Chakra Petch', sans-serif; }
+
+        #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; }
+        #app::-webkit-scrollbar { display: none; }
+
+        .race-card {
+            background: rgba(11, 14, 20, 0.85);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+
+        .option-btn { transition: transform 0.1s; border: 1px solid rgba(255,255,255,0.2); }
+        .option-btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
+
+        .color-indicator {
+            width: 24px; height: 24px; border-radius: 50%;
+            border: 2px solid #fff; box-shadow: 0 0 15px rgba(255,255,255,0.5);
+            margin-right: 12px;
+        }
+
+        /* 化学式の下付き文字 */
+        sub { font-size: 0.6em; vertical-align: sub; line-height: 0; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+
+        @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-6px); } 40%, 80% { transform: translateX(6px); } }
+        .animate-shake { animation: shake 0.4s ease-in-out; }
+
+        .pool-btn { transition: all 0.1s; border: 1px solid rgba(255,255,255,0.3); }
+        .pool-btn:active { transform: scale(0.9); }
+    </style>
+</head>
+<body class="text-sm md:text-base">
+
+    <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl">
+        <div class="flex flex-col">
+            <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter">Stint Time</span>
+            <span id="stint-clock" class="f1-font text-white text-xl font-bold">00:00</span>
+        </div>
+        <div id="red-flag-indicator" class="flex items-center gap-2">
+            <div class="w-2 h-2 rounded-full bg-yellow-500 animate-pulse"></div>
+            <span class="text-[10px] text-yellow-500 font-bold uppercase">Garage</span>
+        </div>
+    </div>
+
+    <div id="app" class="w-full max-w-6xl mx-auto flex flex-col">
+        
+        <div id="gate-screen" class="race-card p-8 rounded-2xl text-center animate-slide-in my-auto max-w-md mx-auto w-full">
+            <h1 class="f1-font text-5xl mb-2 font-bold text-white italic">RB<span class="text-red-600">-28</span></h1>
+            <p class="text-gray-400 font-mono text-[10px] uppercase tracking-[0.4em] mb-12">Chemistry System V2</p>
+            <button id="gate-login-btn" class="w-full f1-font bg-white hover:bg-gray-200 text-black py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all">Engage Engine</button>
+        </div>
+
+        <div id="start-screen" class="hidden race-card p-6 rounded-2xl animate-slide-in my-auto w-full">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                <div class="md:col-span-5 flex flex-col gap-6">
+                    <div class="flex justify-between items-end border-b border-gray-700 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                            <p id="user-name" class="f1-font text-xl text-white font-bold">HIRO</p>
+                        </div>
+                    </div>
+                    <div class="mt-auto flex flex-col gap-3">
+                        <button onclick="quiz.start()" class="w-full f1-font bg-gradient-to-r from-red-600 to-red-800 hover:from-red-500 hover:to-red-700 text-white py-6 rounded-xl font-bold tracking-[0.2em] uppercase text-2xl shadow-lg border-b-4 border-red-900 active:scale-95 transition-all">Start Race</button>
+                    </div>
+                </div>
+
+                <div class="md:col-span-7 flex flex-col gap-4 border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-8">
+                    <h3 class="f1-font text-lg font-bold text-white uppercase tracking-widest">Sector Strategy</h3>
+                    <select id="round-selector" class="w-full bg-black/50 text-white p-3 rounded-lg border border-gray-600 font-mono text-xs outline-none">
+                        <option>SECTION 01: 非金属1 (ハロゲン・オキソ酸)</option>
+                    </select>
+                    
+                    <div class="grid grid-cols-2 gap-4 mt-4">
+                        <label class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-gray-800 hover:border-gray-600 cursor-pointer">
+                            <span class="text-xs font-bold text-gray-300">ASSEMBLER (文字入力)</span>
+                            <input type="checkbox" id="formula-mode" class="w-5 h-5 accent-red-600 cursor-pointer">
+                        </label>
+                        <label class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-gray-800 hover:border-gray-600 cursor-pointer">
+                            <span class="text-xs font-bold text-gray-300">REVERSE (式→名)</span>
+                            <input type="checkbox" id="reverse-mode" class="w-5 h-5 accent-red-600 cursor-pointer">
+                        </label>
+                    </div>
+                    <p class="text-[10px] text-gray-500 mt-2 font-mono">※ASSEMBLERモードは大文字・小文字を厳密に判定します。</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden race-card p-6 rounded-2xl shadow-2xl relative flex flex-col justify-between my-auto min-h-[600px] w-full max-w-5xl mx-auto">
+            <div class="flex justify-between items-start mb-6 border-b border-gray-700 pb-4">
+                <div class="flex flex-col">
+                    <span id="circuit-name" class="f1-font text-[10px] text-gray-400 uppercase tracking-widest">SECTOR 1</span>
+                    <span id="question-number" class="f1-font text-white font-bold text-xl">LAP 1/20</span>
+                </div>
+                <div class="text-right">
+                    <div id="timer" class="f1-font text-3xl text-yellow-400 font-mono tracking-tighter">0.00s</div>
+                </div>
+            </div>
+            
+            <div id="vocab-interface" class="flex-grow flex flex-col justify-center gap-10">
+                <div class="text-center flex flex-col items-center justify-center">
+                    <div id="color-indicator-area" class="flex items-center justify-center mb-2 hidden bg-black/50 px-4 py-1 rounded-full border border-gray-700">
+                        <div id="target-color-chip" class="color-indicator"></div>
+                        <span id="target-color-text" class="text-xs text-gray-300 font-mono"></span>
+                    </div>
+                    <span id="question-label" class="text-red-500 text-[10px] uppercase tracking-widest font-bold mb-2">TARGET</span>
+                    <h2 id="target-word" class="f1-font text-4xl md:text-5xl font-bold text-white tracking-tight leading-tight"></h2>
+                    <p id="target-desc" class="text-gray-400 mt-4 text-sm md:text-base border-l-2 border-red-600 pl-3 text-left max-w-2xl mx-auto"></p>
+                </div>
+
+                <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-4xl mx-auto w-full"></div>
+                
+                <div id="spelling-interface" class="hidden w-full flex flex-col items-center">
+                    <div id="spelling-slots" class="flex flex-wrap gap-2 justify-center mb-10 min-h-[60px] p-4 bg-black/40 rounded-xl border border-gray-700 w-full max-w-2xl shadow-inner"></div>
+                    <div id="spelling-pool" class="flex flex-wrap gap-3 justify-center w-full max-w-3xl"></div>
+                </div>
+            </div>
+            
+            <div id="feedback" class="h-10 mt-6 flex items-center justify-center text-lg font-bold uppercase tracking-widest"></div>
+        </div>
+
+        <div id="result-screen" class="hidden race-card p-8 rounded-2xl text-center animate-slide-in my-auto max-w-2xl mx-auto w-full">
+            <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
+            <div id="accuracy-display" class="f1-font text-8xl font-bold mb-2 text-white drop-shadow-lg">0%</div>
+            <p id="rank-text" class="text-gray-400 font-mono mb-8">P1: MAX VERSTAPPEN</p>
+            <button onclick="quiz.returnToGrid()" class="w-full f1-font bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold uppercase tracking-widest">Return to Garage</button>
+        </div>
+    </div>
+
+    <script>
+        // --- データセット (非金属1) ---
+        // 形式: 物質名 | 化学式 | 色(HEX) | 色の名前 | 性質・解説
+        const rawData = `
+硫化水素 | H2S | null | 無色 | 腐卵臭の有毒気体。強力な還元剤。酢酸鉛(II)紙を黒変させる。
+二酸化硫黄 | SO2 | null | 無色 | 刺激臭の有毒気体。還元剤だが、H2S相手には酸化剤として働きSを遊離させる。
+濃硫酸 | H2SO4 | null | 無色 | 不揮発性・吸湿性・脱水性。加熱した熱濃硫酸は強力な酸化作用を発揮する。
+アンモニア | NH3 | null | 無色 | 刺激臭の塩基性気体。ネスラー試薬を黄褐色に呈色。上方置換で捕集。
+一酸化窒素 | NO | null | 無色 | 水に難溶。空気中で一瞬で酸化され赤褐色のNO2に変化。銅と希硝酸で発生。
+二酸化窒素 | NO2 | #8B4513 | 赤褐色 | 刺激臭気体。水に溶けて硝酸を生じる。銅と濃硝酸で発生し、無色のN2O4と平衡。
+硝酸 | HNO3 | null | 無色 | 強酸かつ強力な酸化剤。光分解を防ぐため褐色瓶保存。Fe、Ni、Alは不動態化して溶けない。
+黄リン | P4 | #FFFFE0 | 淡黄色 | 猛毒。空気中で自然発火するため必ず水中に保存。二硫化炭素に溶ける。
+赤リン | P | #8B4513 | 赤褐色 | 無毒。マッチの側薬。二硫化炭素には溶けない。
+十酸化四リン | P4O10 | #FFFFFF | 白色 | 最強クラスの吸湿性をもつ酸性乾燥剤。水と激しく反応してリン酸になる。
+一酸化炭素 | CO | null | 無色 | 水に難溶の毒性気体。強力な還元剤。ギ酸に濃硫酸を加え加熱して発生。
+二酸化炭素 | CO2 | null | 無色 | 石灰水を白濁させる。過剰に通じると炭酸水素カルシウムとなり再溶解する。
+ケイ素 | Si | #808080 | 暗灰色 | ダイヤモンドと同型の正四面体立体網目構造。半導体の主役。
+二酸化ケイ素 | SiO2 | #FFFFFF | 白色 | 水晶やケイ砂の主成分。フッ化水素酸のみに溶けヘキサフルオロケイ酸を生じる。
+シリカゲル | SiO2・nH2O | null | null | 多孔質で吸着力が強い乾燥剤。塩化コバルト(II)を染み込ませて水分検知に利用。
+ナトリウム | Na | #C0C0C0 | 銀白色 | 常温の水と激しく反応しH2発生。石油中に保存。炎色反応は黄色。
+水酸化ナトリウム | NaOH | #FFFFFF | 白色 | 強塩基。空気中の水分を吸収して溶ける潮解性をもつ。CO2を吸収してNa2CO3になる。
+炭酸ナトリウム | Na2CO3 | #FFFFFF | 白色 | 水和物は空気中で水分を失い粉末化する風解性をもつ。アンモニアソーダ法で合成。
+カルシウム | Ca | #C0C0C0 | 銀白色 | 常温の水と反応してH2を発生。炎色反応は橙赤色。
+酸化カルシウム | CaO | #FFFFFF | 白色 | 生石灰。水と激しく反応し多量の熱を出して消石灰になる。
+水酸化カルシウム | Ca(OH)2 | #FFFFFF | 白色 | 消石灰。水溶液は石灰水。塩素を吸収させると高度さらし粉を生成。
+炭酸カルシウム | CaCO3 | #FFFFFF | 白色 | 石灰石や大理石の主成分。塩酸に溶けてCO2を発生。加熱でCaOとCO2に分解。
+硫酸カルシウム | CaSO4 | #FFFFFF | 白色 | セッコウの主成分。水に難溶。加熱すると水和水を失い焼きセッコウになる。
+バリウム | Ba | #C0C0C0 | 銀白色 | 炎色反応は黄緑色。硫酸塩と炭酸塩は水に難溶で白色沈殿を形成。
+アルミニウム | Al | #C0C0C0 | 銀白色 | 両性金属。濃硝酸で不動態化。テルミット反応で鉄を還元。ボーキサイトから融解塩電解で精錬。
+酸化アルミニウム | Al2O3 | #FFFFFF | 白色 | アルミナ。ルビーやサファイアの主成分。非常に硬く融点が高い。
+亜鉛 | Zn | #C0C0C0 | 銀白色 | 両性金属。トタンのメッキ素材。希硫酸と反応してH2を発生。
+硫化亜鉛 | ZnS | #FFFFFF | 白色 | 中性・塩基性条件でのみ沈殿。酸性条件では溶解する。
+鉛 | Pb | #808080 | 灰白色 | 両性金属。塩酸や希硫酸には難溶性塩の皮膜ができ溶けない。鉛蓄電池の負極。
+塩化鉛(II) | PbCl2 | #FFFFFF | 白色 | 冷水に難溶だが熱水には溶ける。AgClとの系統分離における決定的なトリガー。
+クロム酸鉛(II) | PbCrO4 | #FFFF00 | 黄色 | Pb2+にクロム酸イオンを加えると生じる難溶性の沈殿。
+スズ | Sn | #C0C0C0 | 銀白色 | 両性金属。ブリキ（鉄にスズをメッキ）として利用。
+鉄 | Fe | #C0C0C0 | 銀白色 | 濃硝酸で不動態化。溶鉱炉で鉄鉱石をコークスのCOで還元して銑鉄を得る。
+鉄(II)イオン | Fe2+ | #90EE90 | 淡緑色 | ヘキサシアニド鉄(III)酸カリウムを加えると濃青色沈殿(ターンブル青)。
+鉄(III)イオン | Fe3+ | #DAA520 | 黄褐色 | ヘキサシアニド鉄(II)酸カリウムを加えると濃青色沈殿(ベルリン青)。KSCNで血赤色溶液。
+水酸化鉄(II) | Fe(OH)2 | #008000 | 緑白色 | Fe2+に塩基で沈殿。空気中で酸化され一瞬で赤褐色のFe(OH)3に変化する。
+水酸化鉄(III) | Fe(OH)3 | #8B4513 | 赤褐色 | Fe3+に塩基で沈殿。コロイドになりやすい。
+銅 | Cu | #B87333 | 赤銅色 | 希酸には溶けない。酸化力のある硝酸・熱濃硫酸にのみ溶ける。
+銅(II)イオン | Cu2+ | #0000FF | 青色 | 少量の塩基で青白色沈殿。過剰のアンモニアで深青色溶液に変化。
+水酸化銅(II) | Cu(OH)2 | #ADD8E6 | 青白色 | 加熱すると分解して黒色の酸化銅(II)に変化する。
+硫化銅(II) | CuS | #000000 | 黒色 | 液性に関わらずH2Sを通じれば即座に沈殿する。
+銀 | Ag | #C0C0C0 | 銀白色 | 電気・熱の伝導性が金属中トップ。空気中のH2Sで黒変(Ag2S)。
+塩化銀 | AgCl | #FFFFFF | 白色 | 光分解で銀を遊離(感光性)。過剰のアンモニア水とチオ硫酸ナトリウムに溶ける。
+臭化銀 | AgBr | #FFFFE0 | 淡黄色 | 写真の感光剤。過剰のアンモニア水に少し溶け、チオ硫酸ナトリウムによく溶ける。
+ヨウ化銀 | AgI | #FFFF00 | 黄色 | 過剰のアンモニア水には溶けない。チオ硫酸ナトリウムには溶ける。
+酸化銀 | Ag2O | #8B4513 | 褐色 | Ag+に塩基で沈殿(水酸化銀は不安定)。過剰のアンモニア水で無色の錯イオンとなり溶解。
+クロム酸銀 | Ag2CrO4 | #8B0000 | 暗赤色 | モール法における滴定終点のシグナルとなる沈殿。
+クロム酸イオン | CrO4(2-) | #FFFF00 | 黄色 | 酸性にすると赤橙色の二クロム酸イオンに変化。Ba2+、Pb2+、Ag+と特有の沈殿を作る。
+二クロム酸イオン | Cr2O7(2-) | #FF8C00 | 赤橙色 | 強力な酸化剤。塩基性にすると黄色のクロム酸イオンに変化。
+マンガン(II)イオン | Mn2+ | #FFB6C1 | 淡桃色 | MnO4-が酸性条件下で酸化剤として働いた結果生じる還元生成物。
+過マンガン酸イオン | MnO4- | #800080 | 赤紫色 | 最強クラスの酸化剤。酸性ではMn2+へ、中性・塩基性ではMnO2へ還元される。
+テトラアンミン亜鉛(II)イオン | [Zn(NH3)4]2+ | null | 無色 | Zn(OH)2に過剰のアンモニアで生成。立体構造は正四面体形。
+テトラアンミン銅(II)イオン | [Cu(NH3)4]2+ | #00008B | 深青色 | Cu(OH)2に過剰のアンモニアで生成。立体構造は正方形。
+ジアンミン銀(I)イオン | [Ag(NH3)2]+ | null | 無色 | Ag2Oに過剰のアンモニアで生成。直線形。還元性を示すトレンス試薬の正体。
+テトラヒドロキシドアルミン酸イオン | [Al(OH)4]- | null | 無色 | Al(OH)3に過剰のNaOHで生成。立体構造は正四面体形。
+テトラヒドロキシド亜鉛(II)酸イオン | [Zn(OH)4]2- | null | 無色 | Zn(OH)2に過剰のNaOHで生成。立体構造は正四面体形。
+ヘキサアクア鉄(III)イオン | [Fe(H2O)6]3+ | #DAA520 | 黄褐色 | 水溶液中のFe3+の姿。立体構造は正八面体形。
+ヘキサシアニド鉄(II)酸イオン | [Fe(CN)6]4- | #FFFFE0 | 淡黄色 | 安定な錯イオン。Fe3+と反応し濃青色沈殿(ベルリン青)を生成。正八面体形。
+ヘキサシアニド鉄(III)酸イオン | [Fe(CN)6]3- | #FFFF00 | 黄色 | 安定な錯イオン。Fe2+と反応し濃青色沈殿(ターンブル青)を生成。正八面体形。
+塩化物沈殿 | null | null | null | Ag+、Pb2+は希塩酸で白色沈殿。PbCl2は熱水に溶け、AgClはアンモニア水に溶ける。
+硫化物沈殿(酸性) | null | null | null | 酸性でも沈殿するのはイオン化傾向が小さい金属(Cu、Ag、Pbなど)。色は黒が多いがCdSは黄色。
+硫化物沈殿(中性・塩基性) | null | null | null | 中性・塩基性でのみ沈殿するのはZn(白)、Fe(黒)、Mn(淡桃)。
+水酸化物沈殿(過剰アンモニア) | null | null | null | 少量の塩基で沈殿後、過剰のNH3で再溶解して錯イオン化するのはCu、Ag、Zn。
+水酸化物沈殿(過剰NaOH) | null | null | null | 少量の塩基で沈殿後、過剰のNaOHで再溶解して錯イオン化するのは両性金属(Al、Zn、Sn、Pb)。
+硫酸塩沈殿 | null | null | null | Ba2+、Ca2+、Pb2+、Sr2+は希硫酸で白色沈殿。「バカな硫酸」で即答。
+炭酸塩沈殿 | null | null | null | Ba2+、Ca2+は炭酸アンモニウムで白色沈殿。アルカリ金属以外の多くが沈殿する。
+クロム酸塩沈殿 | null | null | null | Ba2+、Pb2+は黄色沈殿、Ag+は暗赤色沈殿。「バナナ、黄色いポスト、赤い銀時計」で記憶。
+ハーバー・ボッシュ法 | null | null | null | N2とH2からNH3を合成。触媒は四三酸化鉄(Fe3O4)。高温高圧が必須。
+オストワルト法 | null | null | null | NH3を酸化してHNO3を合成。第一段階の触媒は白金(Pt)。
+接触法 | null | null | null | SO2を酸化してSO3を経由しH2SO4を合成。触媒は酸化バナジウム(V)(V2O5)。
+アンモニアソーダ法 | null | null | null | NaClからNa2CO3を合成。副産物のCaCl2が回収され、CO2とNH3は無駄なく循環利用される。
+融解塩電解 | null | null | null | 氷晶石で融点を下げアルミナを電気分解しAlを得る。陽極の炭素電極はCOやCO2となり消費される。
+        `;
+
+        class ChemQuiz {
+            constructor() {
+                this.masterList = [];
+                this.questions = [];
+                this.currentIndex = 0;
+                this.missCount = 0;
+                this.isSpelling = false;
+                this.isReverse = false;
+                this.spellingAns = [];
+
+                // --- Stint Timer (テレメトリ) 初期化 ---
+                this.stintTime = 0;
+                this.stintInterval = null;
+                this.stintActive = false;
+                
+                this.initStintTimer();
+                this.parseData();
+                this.initUI();
+            }
+
+            // タイマーのストレージ読み込みとイベントリスナー設定
+            initStintTimer() {
+                const todayStr = new Date().toDateString();
+                const savedDate = localStorage.getItem('chem_stint_date');
+                
+                // 日付が今日なら続きから、違えば0にリセット
+                if (savedDate === todayStr) {
+                    this.stintTime = parseInt(localStorage.getItem('chem_stint_time')) || 0;
+                } else {
+                    this.stintTime = 0;
+                    localStorage.setItem('chem_stint_date', todayStr);
+                    localStorage.setItem('chem_stint_time', 0);
+                }
+
+                this.updateStintHUDDisplay();
+
+                // タブが裏に回った時のポーズ処理
+                document.addEventListener("visibilitychange", () => {
+                    if (document.hidden && this.stintActive) {
+                        this.pauseStint();
+                    } else if (!document.hidden && this.stintActive) {
+                        this.resumeStint();
+                    }
+                });
+            }
+
+            // タイマーの稼働開始
+            startStint() {
+                this.stintActive = true;
+                this.resumeStint();
+            }
+
+            // タイマーの再開（1秒ごとに内部ストレージに保存）
+            resumeStint() {
+                if (this.stintInterval) clearInterval(this.stintInterval);
+                const indicator = document.getElementById('red-flag-indicator');
+                if(indicator) indicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div><span class="text-[10px] text-green-500 font-bold uppercase">Green Flag</span>`;
+                
+                this.stintInterval = setInterval(() => {
+                    this.stintTime++;
+                    localStorage.setItem('chem_stint_time', this.stintTime);
+                    this.updateStintHUDDisplay();
+                }, 1000);
+            }
+
+            // タイマーのポーズ
+            pauseStint() {
+                clearInterval(this.stintInterval);
+                localStorage.setItem('chem_stint_time', this.stintTime); 
+                const indicator = document.getElementById('red-flag-indicator');
+                if(indicator) indicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div><span class="text-[10px] text-red-500 font-bold uppercase">Red Flag</span>`;
+            }
+
+            // HUDへの時間描画
+            updateStintHUDDisplay() {
+                const h = String(Math.floor(this.stintTime / 3600)).padStart(2, '0');
+                const m = String(Math.floor((this.stintTime % 3600) / 60)).padStart(2, '0');
+                const s = String(this.stintTime % 60).padStart(2, '0');
+                document.getElementById('stint-clock').innerText = h !== '00' ? `${h}:${m}:${s}` : `${m}:${s}`;
+            }
+
+            parseData() {
+                const lines = rawData.trim().split('\n');
+                this.masterList = lines.map(line => {
+                    const [name, formula, colorCode, colorName, property] = line.split('|').map(s => s.trim());
+                    return { 
+                        name, 
+                        formula: formula === 'null' ? null : formula, 
+                        colorCode: colorCode === 'null' ? null : colorCode, 
+                        colorName: colorName === 'null' ? null : colorName,
+                        property 
+                    };
+                });
+            }
+
+            initUI() {
+                document.getElementById('gate-login-btn').onclick = () => {
+                    document.getElementById('gate-screen').classList.add('hidden');
+                    document.getElementById('start-screen').classList.remove('hidden');
+                    // Gate通過時に常時タイマーをスタート
+                    this.startStint();
+                };
+            }
+
+            formatFormula(str, isFormula) {
+                if (!str) return '';
+                if (isFormula) {
+                    return str.replace(/(\d+)/g, '<sub>$1</sub>');
+                }
+                return str;
+            }
+
+            start() {
+                this.isSpelling = document.getElementById('formula-mode').checked;
+                this.isReverse = document.getElementById('reverse-mode').checked;
+                
+                this.questions = [...this.masterList].sort(() => Math.random() - 0.5).slice(0, 15);
+                this.currentIndex = 0;
+                this.missCount = 0;
+                this.startTime = Date.now();
+                
+                document.getElementById('start-screen').classList.add('hidden');
+                document.getElementById('quiz-screen').classList.remove('hidden');
+                this.startLapTimer();
+                this.showQuestion();
+            }
+
+            showQuestion() {
+                const q = this.questions[this.currentIndex];
+                document.getElementById('question-number').innerText = `LAP ${this.currentIndex + 1} / ${this.questions.length}`;
+                
+                const targetDisplay = document.getElementById('target-word');
+                const descDisplay = document.getElementById('target-desc');
+                const colorArea = document.getElementById('color-indicator-area');
+                const colorChip = document.getElementById('target-color-chip');
+                const colorText = document.getElementById('target-color-text');
+                const label = document.getElementById('question-label');
+
+                if (q.colorCode) {
+                    colorArea.classList.remove('hidden');
+                    colorChip.style.backgroundColor = q.colorCode;
+                    colorText.innerText = q.colorName;
+                } else {
+                    colorArea.classList.add('hidden');
+                }
+
+                let qText = "";
+                let hintText = "";
+                let ansType = ""; 
+
+                if (this.isReverse) {
+                    label.innerText = "IDENTIFY THE NAME";
+                    qText = q.formula ? this.formatFormula(q.formula, true) : q.property;
+                    hintText = q.formula ? q.property : "";
+                    ansType = 'name';
+                } else {
+                    label.innerText = q.formula ? "IDENTIFY THE FORMULA" : "IDENTIFY THE PROPERTY";
+                    qText = q.name;
+                    hintText = q.property;
+                    ansType = q.formula ? 'formula' : 'property';
+                }
+
+                targetDisplay.innerHTML = qText;
+                descDisplay.innerHTML = hintText ? `<strong>INFO:</strong> ${hintText}` : "";
+
+                const stdContainer = document.getElementById('options-container');
+                const spellContainer = document.getElementById('spelling-interface');
+
+                if (this.isSpelling && ansType !== 'property') {
+                    stdContainer.classList.add('hidden');
+                    spellContainer.classList.remove('hidden');
+                    this.renderFormulaAssembler(q, ansType);
+                } else {
+                    stdContainer.classList.remove('hidden');
+                    spellContainer.classList.add('hidden');
+                    this.renderOptions(q, ansType);
+                }
+            }
+
+            renderOptions(q, ansType) {
+                const container = document.getElementById('options-container');
+                container.innerHTML = '';
+                
+                const answer = q[ansType];
+                let validPool = this.masterList.filter(item => item !== q && item[ansType]);
+                validPool.sort(() => Math.random() - 0.5);
+                
+                const distractors = validPool.slice(0, 3).map(item => item[ansType]);
+                const options = [answer, ...distractors].sort(() => Math.random() - 0.5);
+
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    const isFormula = (ansType === 'formula');
+                    const fontClass = isFormula ? "f1-font text-2xl tracking-widest" : "text-sm md:text-base";
+                    
+                    btn.className = `option-btn w-full p-6 rounded-xl bg-gray-800 border border-gray-600 hover:bg-gray-700 text-white font-bold ${fontClass} text-left flex items-center justify-center`;
+                    btn.innerHTML = this.formatFormula(opt, isFormula);
+                    
+                    btn.onclick = () => {
+                        Array.from(container.children).forEach(b => b.disabled = true);
+                        this.handleAnswer(opt === answer, q, ansType);
+                    };
+                    container.appendChild(btn);
+                });
+            }
+
+            renderFormulaAssembler(q, ansType) {
+                const slotsEl = document.getElementById('spelling-slots');
+                const poolEl = document.getElementById('spelling-pool');
+                slotsEl.innerHTML = ''; poolEl.innerHTML = '';
+                this.spellingAns = [];
+
+                const targetStr = q[ansType];
+                const targetChars = targetStr.split('');
+                let pool = [...targetChars];
+
+                targetChars.forEach(char => {
+                    if (/[a-z]/.test(char)) pool.push(char.toUpperCase());
+                    else if (/[A-Z]/.test(char)) pool.push(char.toLowerCase());
+                });
+
+                const dummyChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz234";
+                while(pool.length < targetChars.length + 6) {
+                    pool.push(dummyChars.charAt(Math.floor(Math.random() * dummyChars.length)));
+                }
+
+                pool.sort(() => Math.random() - 0.5);
+
+                targetChars.forEach(() => {
+                    const slot = document.createElement('div');
+                    slot.className = "w-10 h-12 md:w-14 md:h-16 border-b-4 border-gray-600 flex items-center justify-center text-2xl md:text-3xl font-bold f1-font text-gray-500 bg-black/50 rounded-t-lg";
+                    slot.innerText = "_";
+                    slotsEl.appendChild(slot);
+                });
+
+                pool.forEach((char, index) => {
+                    const btn = document.createElement('button');
+                    btn.className = "pool-btn min-w-[3rem] h-12 bg-gray-800 rounded-lg text-white font-bold text-xl f1-font shadow-md";
+                    btn.innerText = char;
+                    btn.dataset.index = index;
+                    
+                    btn.onclick = () => {
+                        if (btn.classList.contains('opacity-20')) return; 
+                        
+                        if (this.spellingAns.length < targetChars.length) {
+                            btn.classList.add('opacity-20', 'pointer-events-none');
+                            this.spellingAns.push({ char, btnIndex: index });
+                            
+                            const currentSlot = slotsEl.children[this.spellingAns.length - 1];
+                            currentSlot.innerText = char;
+                            currentSlot.classList.remove('text-gray-500', 'border-gray-600');
+                            currentSlot.classList.add('text-white', 'border-blue-500');
+
+                            currentSlot.onclick = () => {
+                                const ansObj = this.spellingAns.pop();
+                                const originalBtn = document.querySelector(`.pool-btn[data-index="${ansObj.btnIndex}"]`);
+                                if (originalBtn) originalBtn.classList.remove('opacity-20', 'pointer-events-none');
+                                currentSlot.innerText = "_";
+                                currentSlot.classList.add('text-gray-500', 'border-gray-600');
+                                currentSlot.classList.remove('text-white', 'border-blue-500');
+                                currentSlot.onclick = null;
+                            };
+
+                            if (this.spellingAns.length === targetChars.length) {
+                                const userStr = this.spellingAns.map(a => a.char).join('');
+                                this.handleAnswer(userStr === targetStr, q, ansType);
+                            }
+                        }
+                    };
+                    poolEl.appendChild(btn);
+                });
+            }
+
+            handleAnswer(isCorrect, q, ansType) {
+                const feedback = document.getElementById('feedback');
+                
+                if (isCorrect) {
+                    feedback.innerHTML = `<span class="text-[#39ff14] animate-pulse">🟣 PERFECT SECTOR</span>`;
+                    setTimeout(() => {
+                        this.currentIndex++;
+                        if (this.currentIndex < this.questions.length) this.showQuestion();
+                        else this.finish();
+                    }, 500);
+                } else {
+                    this.missCount++;
+                    feedback.innerHTML = `<span class="text-red-500">DAMAGE DETECTED: <span class="text-white ml-2">${this.formatFormula(q[ansType], ansType==='formula')}</span></span>`;
+                    
+                    if (this.isSpelling && ansType !== 'property') {
+                        document.getElementById('spelling-slots').classList.add('animate-shake', 'border-red-600');
+                    }
+
+                    this.questions.push(q); 
+                    
+                    setTimeout(() => {
+                        if (this.isSpelling && ansType !== 'property') {
+                            document.getElementById('spelling-slots').classList.remove('animate-shake', 'border-red-600');
+                        }
+                        this.showQuestion();
+                    }, 2500);
+                }
+            }
+
+            // クイズ中のラップタイマー（Stintとは別物）
+            startLapTimer() {
+                this.lapTimerInterval = setInterval(() => {
+                    document.getElementById('timer').innerText = ((Date.now() - this.startTime) / 1000).toFixed(2) + 's';
+                }, 50);
+            }
+
+            finish() {
+                clearInterval(this.lapTimerInterval);
+                document.getElementById('quiz-screen').classList.add('hidden');
+                document.getElementById('result-screen').classList.remove('hidden');
+                
+                const totalQ = this.questions.length;
+                const accuracy = ((totalQ - this.missCount) / totalQ * 100).toFixed(1);
+                
+                const accEl = document.getElementById('accuracy-display');
+                accEl.innerText = `${accuracy}%`;
+                
+                if (accuracy >= 90) {
+                    accEl.classList.add('text-green-400');
+                    accEl.classList.remove('text-red-500');
+                } else {
+                    accEl.classList.add('text-red-500');
+                    accEl.classList.remove('text-green-400');
+                }
+
+                document.getElementById('rank-text').innerText = `Time: ${document.getElementById('timer').innerText} | Misses: ${this.missCount}`;
+            }
+
+            returnToGrid() {
+                document.getElementById('result-screen').classList.add('hidden');
+                document.getElementById('start-screen').classList.remove('hidden');
+            }
+        }
+
+        window.quiz = new ChemQuiz();
+    </script>
+</body>
+</html>
