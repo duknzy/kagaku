@@ -1,7 +1,7 @@
 // data.js
 
 const appConfig = {
-    wallpaperUrl: "./bg.jpg",  // ここに背景にしたい画像のファイル名を入れる（例：F1.jpg）
+    wallpaperUrl: "./F1.jpg",  // ここに背景にしたい画像のファイル名を入れる（例：F1.jpg）
     appIconUrl: "./icon.png"   // ここにアイコン画像のファイル名を入れる
 };
 
