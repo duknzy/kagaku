@@ -18,11 +18,16 @@
             font-family: 'Inter', sans-serif;
             touch-action: manipulation; overscroll-behavior: none;
             -webkit-user-select: none; user-select: none;
-            -webkit-tap-highlight-color: transparent; /* スマホ特有のタップハイライトを消す */
+            -webkit-tap-highlight-color: transparent; 
         }
         .f1-font { font-family: 'Chakra Petch', sans-serif; }
         #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; }
         #app::-webkit-scrollbar { display: none; }
+        
+        /* 化学式の上下付き文字の調整 */
+        sub { font-size: 0.65em; bottom: -0.2em; position: relative; }
+        sup { font-size: 0.65em; top: -0.4em; position: relative; }
+
         .race-card {
             background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
@@ -44,7 +49,6 @@
         .tire-medium.active { border-color: #eab308; color: #eab308; box-shadow: 0 0 10px rgba(234,179,8,0.3); }
         .tire-hard.active { border-color: #f8fafc; color: #f8fafc; box-shadow: 0 0 10px rgba(248,250,252,0.3); }
         
-        /* 選択肢ボタンのdisabled状態（連打ロック中）のスタイル */
         .option-btn { transition: all 0.1s; cursor: pointer; }
         .option-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
         .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
@@ -144,11 +148,9 @@
     </div>
 
     <script>
-        // スマホでのダブルタップによるズームなどの誤作動をブロック
         document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
         document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
 
-        // --- データマネージャー ---
         const appData = {
             "非金属1": {
                 "周期表と元素1": `
@@ -427,7 +429,6 @@
                 `
             }
         };
-
         class ChemQuizV4 {
             constructor() {
                 this.masterQuestions = [];
@@ -438,10 +439,28 @@
                 this.stintTime = 0;
                 this.stintInterval = null;
                 this.stintActive = false;
-                this.isLocked = false; // 連打対策用ロックフラグ
+                this.isLocked = false; 
 
                 this.initStint();
                 this.initUI();
+            }
+
+            // --- 新機能：化学式の自動フォーマットエンジン ---
+            formatChem(text) {
+                if (!text) return "";
+                
+                // 1. カッコ書きのイオン価数 (例: CrO4(2-) -> CrO4^2-)
+                let formatted = text.replace(/\((\d*[\+\-])\)/g, '<sup>$1</sup>');
+                
+                // 2. 通常のイオン価数 (例: Cu2+, Ag+, Cl-)
+                // 英字または閉じカッコの直後の「数字+符号」または「符号」で、その後に英数字が続かない場合のみ適用
+                formatted = formatted.replace(/([a-zA-Z\]])(\d+[\+\-]|[\+\-])(?![a-zA-Z0-9])/g, '$1<sup>$2</sup>');
+                
+                // 3. 化学式の下付き数字 (例: H2O, CO2, Ca(OH)2)
+                // 英字または閉じカッコの直後の数字を下付きに
+                formatted = formatted.replace(/([a-zA-Z\)])(\d+)/g, '$1<sub>$2</sub>');
+                
+                return formatted;
             }
 
             initStint() {
@@ -482,7 +501,7 @@
                 btn.classList.add('active');
                 const grid = document.getElementById('sub-sector-grid');
                 grid.innerHTML = Object.entries(appData[cat]).map(([name, data]) => {
-                    const count = data.trim().split('\n').length;
+                    const count = data.trim().split('\n').filter(l => l.includes('【解答】') || l.includes('[解答]')).length;
                     return `
                         <div class="sub-card p-4 flex flex-col justify-center items-center h-28" onclick="quiz.openSetup('${cat}', '${name}')">
                             <h4 class="text-white font-bold text-sm text-center mb-1">${name}</h4>
@@ -515,6 +534,11 @@
                     return m ? { q: m[1].trim(), a: m[2].trim() } : null;
                 }).filter(x => x);
 
+                if (parsed.length === 0) {
+                    alert("No valid data found in this sector.");
+                    return;
+                }
+
                 this.masterQuestions = parsed;
                 this.isReverse = document.getElementById('reverse-mode').checked;
                 this.questions = [...parsed].sort(() => Math.random() - 0.5).slice(0, this.tireLimit);
@@ -535,24 +559,32 @@
             showQuestion() {
                 const q = this.questions[this.currentIndex];
                 document.getElementById('lap-counter').innerText = `LAP ${this.currentIndex + 1}/${this.questions.length}`;
-                document.getElementById('target-word').innerText = this.isReverse ? q.a : q.q;
+                
+                // 問題文をフォーマットしてinnerHTMLで流し込む
+                const rawQText = this.isReverse ? q.a : q.q;
+                document.getElementById('target-word').innerHTML = this.formatChem(rawQText);
                 
                 const ans = this.isReverse ? q.q : q.a;
                 let pool = [...new Set(this.masterQuestions.map(x => this.isReverse ? x.q : x.a))].filter(x => x !== ans);
                 let options = [ans, ...pool.sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
 
                 const container = document.getElementById('options-container');
-                container.innerHTML = options.map(opt => 
-                    `<button class="option-btn bg-gray-800 text-white p-4 rounded-xl border border-gray-700 text-left text-sm font-bold" onclick="quiz.handleAns('${opt}', '${ans}')">${opt}</button>`
-                ).join('');
+                container.innerHTML = '';
+                
+                // 選択肢もフォーマットしてDOMに追加（エスケープ問題を回避）
+                options.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = "option-btn bg-gray-800 text-white p-4 rounded-xl border border-gray-700 text-left text-sm md:text-base font-bold";
+                    btn.innerHTML = this.formatChem(opt);
+                    btn.onclick = () => this.handleAns(opt, ans);
+                    container.appendChild(btn);
+                });
             }
 
             handleAns(selected, correct) {
-                // 連打対策：すでに判定中（ロック状態）なら入力を弾く
                 if (this.isLocked) return;
                 this.isLocked = true;
 
-                // 画面上の全選択肢ボタンを物理的に無効化する
                 const btns = document.querySelectorAll('.option-btn');
                 btns.forEach(b => b.disabled = true);
 
@@ -563,7 +595,7 @@
                     setTimeout(() => {
                         feedback.innerText = "";
                         this.currentIndex++;
-                        this.isLocked = false; // ロック解除
+                        this.isLocked = false;
                         if (this.currentIndex < this.questions.length) this.showQuestion();
                         else this.finish();
                     }, 400);
@@ -573,7 +605,7 @@
                     this.questions.push(this.questions[this.currentIndex]);
                     setTimeout(() => { 
                         feedback.innerText = ""; 
-                        this.isLocked = false; // ロック解除
+                        this.isLocked = false; 
                         this.showQuestion(); 
                     }, 1500);
                 }
