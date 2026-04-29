@@ -5,17 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="RB Chem V3">
     <link rel="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#0b0e14">
-    
-    <title>RB-28 Chemistry System V3</title>
-    
+    <title>RB-28 Chem Hybrid Evolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
-        
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+        :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
         html, body {
             height: 100%; width: 100%; overflow: hidden; 
             background-color: #0b0e14; color: #e2e8f0;
@@ -23,48 +19,41 @@
             touch-action: manipulation; overscroll-behavior: none;
             -webkit-user-select: none; user-select: none;
         }
-
         .f1-font { font-family: 'Chakra Petch', sans-serif; }
-
-        #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; }
+        #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; }
         #app::-webkit-scrollbar { display: none; }
-
         .race-card {
-            background: rgba(11, 14, 20, 0.9);
-            backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
         }
-
-        .option-btn { transition: transform 0.1s; border: 1px solid rgba(255,255,255,0.2); }
-        .option-btn:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
-        .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-
         /* タブのスタイル */
         .tab-btn {
-            white-space: nowrap; padding: 0.75rem 1.5rem; font-weight: bold;
+            white-space: nowrap; padding: 1rem 1.5rem; font-weight: bold; font-family: 'Chakra Petch';
             border-bottom: 3px solid transparent; color: #64748b; transition: all 0.2s;
+            text-transform: uppercase; letter-spacing: 0.1em;
         }
-        .tab-btn.active { border-bottom-color: #e10600; color: #ffffff; }
-
-        /* グリッドカードのスタイル */
-        .grid-card {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.75rem; padding: 1.5rem 1rem; text-align: center;
-            transition: all 0.2s; cursor: pointer;
+        .tab-btn.active { border-bottom-color: var(--f1-red); color: #ffffff; text-shadow: 0 0 10px rgba(225,6,0,0.5); }
+        /* グリッドカード */
+        .sub-card {
+            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 0.5rem; transition: all 0.2s; cursor: pointer;
         }
-        .grid-card:active { transform: scale(0.95); background: rgba(255, 255, 255, 0.1); }
-        .grid-card:hover { border-color: #3b82f6; }
-
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
+        .sub-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.08); }
+        /* タイヤボタン */
+        .tire-btn { opacity: 0.5; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
+        .tire-btn.active { opacity: 1; border-width: 2px; transform: scale(1.05); }
+        .tire-soft.active { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.3); }
+        .tire-medium.active { border-color: #eab308; color: #eab308; box-shadow: 0 0 10px rgba(234,179,8,0.3); }
+        .tire-hard.active { border-color: #f8fafc; color: #f8fafc; box-shadow: 0 0 10px rgba(248,250,252,0.3); }
+        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
 </head>
-<body class="text-sm md:text-base">
+<body>
 
-    <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl">
+    <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
         <div class="flex flex-col">
-            <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter">Stint Time</span>
+            <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter">Live Stint Time</span>
             <span id="stint-clock" class="f1-font text-white text-xl font-bold">00:00</span>
         </div>
         <div id="red-flag-indicator" class="flex items-center gap-2">
@@ -73,351 +62,279 @@
         </div>
     </div>
 
-    <div id="app" class="w-full max-w-6xl mx-auto flex flex-col">
-        
-        <div id="gate-screen" class="race-card p-8 rounded-2xl text-center animate-slide-in my-auto max-w-md mx-auto w-full">
+    <div id="app" class="w-full max-w-6xl mx-auto">
+        <div id="gate-screen" class="race-card p-8 rounded-2xl text-center my-auto mt-20 max-w-md mx-auto">
             <h1 class="f1-font text-5xl mb-2 font-bold text-white italic">RB<span class="text-red-600">-28</span></h1>
-            <p class="text-gray-400 font-mono text-[10px] uppercase tracking-[0.4em] mb-12">Chem System V3</p>
-            <button id="gate-login-btn" class="w-full f1-font bg-white hover:bg-gray-200 text-black py-4 rounded-xl font-bold tracking-widest uppercase active:scale-95 transition-all">Engage Engine</button>
+            <p class="text-gray-400 font-mono text-[10px] uppercase tracking-[0.4em] mb-12">Chem Hybrid Evolution</p>
+            <button id="gate-login-btn" class="w-full f1-font bg-white text-black py-4 rounded-xl font-bold uppercase active:scale-95 transition-all">Engage Engine</button>
         </div>
 
-        <div id="start-screen" class="hidden race-card p-6 rounded-2xl animate-slide-in my-auto w-full max-w-4xl mx-auto h-[85vh] flex flex-col">
-            <div class="flex justify-between items-end border-b border-gray-700 pb-4 shrink-0">
+        <div id="start-screen" class="hidden flex flex-col h-full mt-12 animate-slide-in">
+            <div class="flex justify-between items-end border-b border-gray-800 pb-4 px-2">
                 <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+                    <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
                     <p id="user-name" class="f1-font text-xl text-white font-bold">HIRO</p>
                 </div>
-            </div>
-
-            <div id="category-tabs" class="flex overflow-x-auto border-b border-gray-700 mt-4 shrink-0 scrollbar-hide">
-                </div>
-
-            <div id="subcategory-grid" class="grid grid-cols-2 md:grid-cols-3 gap-4 mt-6 overflow-y-auto pb-4 shrink">
-                </div>
-        </div>
-
-        <div id="quiz-screen" class="hidden race-card p-6 rounded-2xl shadow-2xl relative flex flex-col justify-between my-auto min-h-[600px] w-full max-w-5xl mx-auto">
-            <div class="flex justify-between items-start mb-6 border-b border-gray-700 pb-4">
-                <div class="flex flex-col">
-                    <span id="circuit-name" class="f1-font text-[10px] text-gray-400 uppercase tracking-widest">SECTOR</span>
-                    <span id="question-number" class="f1-font text-white font-bold text-xl">LAP 1/20</span>
-                </div>
                 <div class="text-right">
-                    <div id="timer" class="f1-font text-3xl text-yellow-400 font-mono tracking-tighter">0.00s</div>
+                    <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
+                    <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
                 </div>
             </div>
-            
-            <div id="vocab-interface" class="flex-grow flex flex-col justify-center gap-8">
-                <div class="text-center flex flex-col items-center justify-center">
-                    <span class="text-red-500 text-[10px] uppercase tracking-widest font-bold mb-2">TARGET QUESTION</span>
-                    <h2 id="target-word" class="font-bold text-white tracking-tight leading-relaxed text-xl md:text-2xl max-w-3xl text-left border-l-4 border-blue-500 pl-4 py-2"></h2>
-                </div>
 
-                <div id="options-container" class="grid grid-cols-1 gap-4 max-w-4xl mx-auto w-full"></div>
-            </div>
-            
-            <div id="feedback" class="h-10 mt-6 flex items-center justify-center text-lg font-bold uppercase tracking-widest"></div>
+            <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar"></div>
+
+            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 pb-10"></div>
         </div>
 
-        <div id="result-screen" class="hidden race-card p-8 rounded-2xl text-center animate-slide-in my-auto max-w-2xl mx-auto w-full">
+        <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
+            <div class="w-full bg-gray-900 rounded-t-3xl p-6 animate-slide-up border-t-2 border-red-600">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <span id="setup-sector-name" class="text-[10px] text-red-500 font-bold uppercase tracking-widest">SECTOR 1</span>
+                        <h3 id="setup-sub-name" class="f1-font text-2xl font-bold text-white italic">SUB CATEGORY</h3>
+                    </div>
+                    <button onclick="quiz.closeSetup()" class="text-gray-500 text-3xl">&times;</button>
+                </div>
+
+                <div class="space-y-6">
+                    <div>
+                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Tire Strategy (Question Count)</p>
+                        <div class="grid grid-cols-3 gap-3">
+                            <button onclick="quiz.setTire(10, 'soft')" id="tire-soft" class="tire-btn tire-soft bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">Soft (10)</button>
+                            <button onclick="quiz.setTire(20, 'medium')" id="tire-medium" class="tire-btn tire-medium active bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">Med (20)</button>
+                            <button onclick="quiz.setTire(999, 'hard')" id="tire-hard" class="tire-btn tire-hard bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">All</button>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4">
+                        <label class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-gray-800">
+                            <span class="text-xs font-bold text-gray-300">REVERSE GRID</span>
+                            <input type="checkbox" id="reverse-mode" class="w-5 h-5 accent-red-600">
+                        </label>
+                    </div>
+                    <button onclick="quiz.startRace()" class="w-full f1-font bg-red-600 text-white py-5 rounded-xl font-bold uppercase text-xl shadow-lg active:scale-95 transition-all">Start Race</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="quiz-screen" class="hidden race-card fixed inset-0 z-[120] p-6 flex flex-col justify-between">
+            <div class="flex justify-between items-start">
+                <div>
+                    <span id="quiz-title" class="f1-font text-[10px] text-gray-400 uppercase tracking-widest">SECTION</span>
+                    <h4 id="lap-counter" class="f1-font text-white font-bold text-xl">LAP 1/20</h4>
+                </div>
+                <div id="timer" class="f1-font text-3xl text-yellow-400 font-mono tracking-tighter">0.00s</div>
+            </div>
+            
+            <div class="flex-grow flex flex-col justify-center items-center">
+                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed"></h2>
+                <div id="options-container" class="grid grid-cols-1 gap-3 mt-10 w-full max-w-md"></div>
+            </div>
+            <div id="feedback" class="h-8 mb-4 text-center font-bold uppercase tracking-widest"></div>
+        </div>
+
+        <div id="result-screen" class="hidden race-card fixed inset-0 z-[130] p-8 text-center flex flex-col justify-center items-center">
             <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
-            <div id="accuracy-display" class="f1-font text-8xl font-bold mb-2 text-white drop-shadow-lg">0%</div>
-            <p id="rank-text" class="text-gray-400 font-mono mb-8">P1: MAX VERSTAPPEN</p>
-            <button onclick="quiz.returnToGrid()" class="w-full f1-font bg-red-600 hover:bg-red-500 text-white py-4 rounded-xl font-bold uppercase tracking-widest">Return to Garage</button>
+            <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
+            <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
+            <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase">Return to Paddock</button>
         </div>
     </div>
 
     <script>
-        // --- アプリの全データ ---
-        // 構造: タブ名 -> サブカテゴリ名 -> テキストデータ
+        // --- データマネージャー ---
         const appData = {
             "非金属1": {
                 "オキソ酸": `
 1. 塩基性酸化物は[ A ]の酸化物であり、酸性酸化物は[ B ]の酸化物である。 【解答】 A:金属元素、B:非金属元素
 2. 塩基性酸化物は、[ A ]と反応して水酸化物(塩基)を生じたり、[ B ]と反応して塩を生じたりする。 【解答】 A:水、B:酸
-3. 塩基性酸化物は、水と反応して[ A ]を生じたり、酸と反応して[ B ]を生じたりする。 【解答】 A:水酸化物(塩基)、B:塩
 14. [ A ]のオキソ酸では、水素原子と[ B ]原子が中心原子に多く結合しているものほど酸性が強くなる。 【解答】 A:同一元素、B:結合していない酸素
-22. 次亜塩素酸、亜塩素酸、塩素酸、過塩素酸のうち、最も酸性が強いものは[ A ]、最も酸性が弱いものは[ B ]である。 【解答】 A:過塩素酸、B:次亜塩素酸
                 `,
                 "周期表と元素1": `
-1. 周期表の同周期において、1族から17族にかけて、原子番号が大きくなるほど原子半径は[ A ]なる。 【解答】 A:小さく
+1. 周期表の同周期において、1族から17族にかけて、原子半径は[ A ]なる。 【解答】 A:小さく
 2. 第1イオン化エネルギーが最大の元素は[ A ]である。 【解答】 A:He(ヘリウム)
-                `,
-                "ハロゲンの化合物": `
-1. フッ化水素は[ A ]色の[ B ]で、水によく溶けて[ C ]性を示す。 【解答】 A:無、B:気体、C:弱酸
-2. 塩化銀(AgCl)は[ A ]色の沈殿で、光が当たると分解して銀を遊離する[ B ]性をもつ。 【解答】 A:白、B:感光
                 `
             },
             "非金属2": {
-                "硫黄とその化合物": `
+                "硫黄化合物": `
 1. 硫黄の同素体には、[ A ]、[ B ]、[ C ]がある。 【解答】 A:斜方硫黄、B:単斜硫黄、C:ゴム状硫黄
-2. 硫化水素は[ A ]臭をもつ[ B ]の気体で、強い[ C ]剤として働く。 【解答】 A:腐卵、B:有毒、C:還元
-                `
-            },
-            "典型金属": {
-                "アルカリ金属1": `
-1. アルカリ金属の単体は、水と激しく反応して[ A ]を発生する。保存する際は[ B ]中に保存する。 【解答】 A:水素、B:石油(灯油)
+2. 硫化水素は[ A ]臭をもつ[ B ]の気体である。 【解答】 A:腐卵、B:有毒
                 `
             }
         };
 
-        class ChemQuizV3 {
+        class ChemQuizV4 {
             constructor() {
-                this.currentTabData = {};
+                this.masterQuestions = [];
                 this.questions = [];
                 this.currentIndex = 0;
                 this.missCount = 0;
-                
-                // タイマー関連
+                this.tireLimit = 20;
                 this.stintTime = 0;
                 this.stintInterval = null;
                 this.stintActive = false;
 
-                this.initStintTimer();
+                this.initStint();
                 this.initUI();
             }
 
-            initStintTimer() {
-                const todayStr = new Date().toDateString();
-                const savedDate = localStorage.getItem('chem_stint_date');
-                if (savedDate === todayStr) {
-                    this.stintTime = parseInt(localStorage.getItem('chem_stint_time')) || 0;
+            initStint() {
+                const today = new Date().toDateString();
+                if (localStorage.getItem('chem_date') === today) {
+                    this.stintTime = parseInt(localStorage.getItem('chem_time')) || 0;
                 } else {
-                    this.stintTime = 0;
-                    localStorage.setItem('chem_stint_date', todayStr);
-                    localStorage.setItem('chem_stint_time', 0);
+                    localStorage.setItem('chem_date', today);
                 }
-                this.updateStintHUDDisplay();
-
+                this.updateHUD();
                 document.addEventListener("visibilitychange", () => {
-                    if (document.hidden && this.stintActive) this.pauseStint();
-                    else if (!document.hidden && this.stintActive) this.resumeStint();
+                    if (document.hidden && this.stintActive) this.pauseTimer();
+                    else if (!document.hidden && this.stintActive) this.resumeTimer();
                 });
-            }
-
-            startStint() {
-                this.stintActive = true;
-                this.resumeStint();
-            }
-
-            resumeStint() {
-                if (this.stintInterval) clearInterval(this.stintInterval);
-                const indicator = document.getElementById('red-flag-indicator');
-                if(indicator) indicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div><span class="text-[10px] text-green-500 font-bold uppercase">Green Flag</span>`;
-                
-                this.stintInterval = setInterval(() => {
-                    this.stintTime++;
-                    localStorage.setItem('chem_stint_time', this.stintTime);
-                    this.updateStintHUDDisplay();
-                }, 1000);
-            }
-
-            pauseStint() {
-                clearInterval(this.stintInterval);
-                localStorage.setItem('chem_stint_time', this.stintTime); 
-                const indicator = document.getElementById('red-flag-indicator');
-                if(indicator) indicator.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-600 animate-pulse"></div><span class="text-[10px] text-red-500 font-bold uppercase">Red Flag</span>`;
-            }
-
-            updateStintHUDDisplay() {
-                const h = String(Math.floor(this.stintTime / 3600)).padStart(2, '0');
-                const m = String(Math.floor((this.stintTime % 3600) / 60)).padStart(2, '0');
-                const s = String(this.stintTime % 60).padStart(2, '0');
-                document.getElementById('stint-clock').innerText = h !== '00' ? `${h}:${m}:${s}` : `${m}:${s}`;
             }
 
             initUI() {
                 document.getElementById('gate-login-btn').onclick = () => {
                     document.getElementById('gate-screen').classList.add('hidden');
                     document.getElementById('start-screen').classList.remove('hidden');
-                    this.startStint();
+                    this.stintActive = true;
+                    this.resumeTimer();
                     this.renderTabs();
                 };
             }
 
-            // タブの描画
             renderTabs() {
-                const tabsContainer = document.getElementById('category-tabs');
-                tabsContainer.innerHTML = '';
+                const container = document.getElementById('sector-tabs');
                 const categories = Object.keys(appData);
-                
-                categories.forEach((cat, index) => {
-                    const btn = document.createElement('button');
-                    btn.className = `tab-btn f1-font text-lg ${index === 0 ? 'active' : ''}`;
-                    btn.innerText = cat;
-                    btn.onclick = () => {
-                        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-                        this.renderGrid(cat);
-                    };
-                    tabsContainer.appendChild(btn);
-                });
-
-                // 初期状態のグリッドを描画
-                if (categories.length > 0) {
-                    this.renderGrid(categories[0]);
-                }
+                container.innerHTML = categories.map((cat, i) => 
+                    `<button class="tab-btn ${i===0?'active':''}" onclick="quiz.switchTab('${cat}', this)">${cat}</button>`
+                ).join('');
+                this.switchTab(categories[0], container.firstChild);
             }
 
-            // サブカテゴリ（グリッド）の描画
-            renderGrid(categoryName) {
-                const gridContainer = document.getElementById('subcategory-grid');
-                gridContainer.innerHTML = '';
-                const subCats = appData[categoryName];
-
-                for (const [subName, textData] of Object.entries(subCats)) {
-                    // テキストをパースして問題数を取得
-                    const parsedData = this.parseTextData(textData);
-                    
-                    const card = document.createElement('div');
-                    card.className = "grid-card flex flex-col justify-center items-center h-32";
-                    card.innerHTML = `
-                        <h3 class="font-bold text-white text-lg mb-2">${subName}</h3>
-                        <p class="text-xs text-blue-400 f1-font">${parsedData.length} Qs</p>
+            switchTab(cat, btn) {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                const grid = document.getElementById('sub-sector-grid');
+                grid.innerHTML = Object.entries(appData[cat]).map(([name, data]) => {
+                    const count = data.trim().split('\n').length;
+                    return `
+                        <div class="sub-card p-4 flex flex-col justify-center items-center h-28" onclick="quiz.openSetup('${cat}', '${name}')">
+                            <h4 class="text-white font-bold text-sm text-center mb-1">${name}</h4>
+                            <span class="f1-font text-[10px] text-red-500">${count} Qs</span>
+                        </div>
                     `;
-                    card.onclick = () => this.startQuiz(categoryName, subName, parsedData);
-                    gridContainer.appendChild(card);
-                }
+                }).join('');
             }
 
-            // テキストデータの解析器 (「1. 問題文 【解答】 答え」の形式を分離)
-            parseTextData(rawText) {
-                const lines = rawText.split('\n');
-                const parsed = [];
-                lines.forEach(line => {
-                    line = line.trim();
-                    if (!line) return;
-                    
-                    // 正規表現で「【解答】」または「[解答]」の前後に分割
-                    const match = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
-                    if (match) {
-                        parsed.push({
-                            q: match[1].trim(),
-                            a: match[2].trim()
-                        });
-                    }
-                });
-                return parsed;
+            openSetup(cat, sub) {
+                this.currentCat = cat;
+                this.currentSub = sub;
+                document.getElementById('setup-sector-name').innerText = cat;
+                document.getElementById('setup-sub-name').innerText = sub;
+                document.getElementById('setup-modal').classList.remove('hidden');
             }
 
-            // クイズ開始
-            startQuiz(category, subCategory, parsedData) {
-                if (parsedData.length === 0) {
-                    alert("No data available in this section.");
-                    return;
-                }
+            closeSetup() { document.getElementById('setup-modal').classList.add('hidden'); }
 
-                document.getElementById('circuit-name').innerText = `${category} > ${subCategory}`;
-                this.questions = parsedData.sort(() => Math.random() - 0.5); // シャッフル
+            setTire(limit, type) {
+                this.tireLimit = limit;
+                document.querySelectorAll('.tire-btn').forEach(b => b.classList.remove('active'));
+                document.getElementById(`tire-${type}`).classList.add('active');
+            }
+
+            startRace() {
+                const raw = appData[this.currentCat][this.currentSub];
+                const parsed = raw.trim().split('\n').map(line => {
+                    const m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
+                    return m ? { q: m[1].trim(), a: m[2].trim() } : null;
+                }).filter(x => x);
+
+                this.masterQuestions = parsed;
+                this.isReverse = document.getElementById('reverse-mode').checked;
+                this.questions = [...parsed].sort(() => Math.random() - 0.5).slice(0, this.tireLimit);
                 this.currentIndex = 0;
                 this.missCount = 0;
                 this.startTime = Date.now();
                 
-                document.getElementById('start-screen').classList.add('hidden');
+                this.closeSetup();
+                document.getElementById('quiz-title').innerText = `${this.currentCat} > ${this.currentSub}`;
                 document.getElementById('quiz-screen').classList.remove('hidden');
-                this.startLapTimer();
+                this.lapInterval = setInterval(() => {
+                    document.getElementById('timer').innerText = ((Date.now() - this.startTime)/1000).toFixed(2) + 's';
+                }, 50);
                 this.showQuestion();
             }
 
             showQuestion() {
-                const qData = this.questions[this.currentIndex];
-                document.getElementById('question-number').innerText = `LAP ${this.currentIndex + 1} / ${this.questions.length}`;
-                document.getElementById('target-word').innerText = qData.q;
+                const q = this.questions[this.currentIndex];
+                document.getElementById('lap-counter').innerText = `LAP ${this.currentIndex + 1}/${this.questions.length}`;
+                document.getElementById('target-word').innerText = this.isReverse ? q.a : q.q;
+                
+                const ans = this.isReverse ? q.q : q.a;
+                let pool = [...new Set(this.masterQuestions.map(x => this.isReverse ? x.q : x.a))].filter(x => x !== ans);
+                let options = [ans, ...pool.sort(() => Math.random() - 0.5).slice(0, 3)].sort(() => Math.random() - 0.5);
 
-                this.renderOptions(qData);
-            }
-
-            // 4択選択肢の生成
-            renderOptions(qData) {
                 const container = document.getElementById('options-container');
-                container.innerHTML = '';
-                
-                const answer = qData.a;
-                
-                // 同じセットの中から他の答えをダミーとして抽出
-                let validPool = this.questions.filter(item => item.a !== answer).map(item => item.a);
-                validPool = [...new Set(validPool)]; // 重複排除
-                validPool.sort(() => Math.random() - 0.5);
-                
-                const distractors = validPool.slice(0, 3);
-                // もしダミーが足りない場合は適当な文字列を補充
-                while (distractors.length < 3) {
-                    distractors.push("A:該当なし, B:該当なし");
-                }
-
-                const options = [answer, ...distractors].sort(() => Math.random() - 0.5);
-
-                options.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = `option-btn w-full p-4 rounded-xl bg-gray-800 border border-gray-600 hover:bg-gray-700 text-white font-bold text-base md:text-lg text-left`;
-                    btn.innerText = opt;
-                    
-                    btn.onclick = () => {
-                        Array.from(container.children).forEach(b => b.disabled = true);
-                        this.handleAnswer(opt === answer, qData);
-                    };
-                    container.appendChild(btn);
-                });
+                container.innerHTML = options.map(opt => 
+                    `<button class="option-btn bg-gray-800 text-white p-4 rounded-xl border border-gray-700 text-left text-sm font-bold" onclick="quiz.handleAns('${opt}', '${ans}')">${opt}</button>`
+                ).join('');
             }
 
-            handleAnswer(isCorrect, qData) {
+            handleAns(selected, correct) {
                 const feedback = document.getElementById('feedback');
-                
-                if (isCorrect) {
-                    feedback.innerHTML = `<span class="text-[#39ff14] animate-pulse">🟣 PERFECT</span>`;
+                if (selected === correct) {
+                    feedback.innerHTML = '<span class="text-green-500">PURPLE SECTOR</span>';
                     setTimeout(() => {
+                        feedback.innerText = "";
                         this.currentIndex++;
                         if (this.currentIndex < this.questions.length) this.showQuestion();
                         else this.finish();
                     }, 400);
                 } else {
                     this.missCount++;
-                    feedback.innerHTML = `<span class="text-red-500">DAMAGE DETECTED</span>`;
-                    
-                    this.questions.push(qData); // 間違えたら配列の最後に追加（再テスト）
-                    
-                    setTimeout(() => {
-                        feedback.innerText = "";
-                        this.showQuestion();
-                    }, 1500);
+                    feedback.innerHTML = '<span class="text-red-600">DAMAGE DETECTED</span>';
+                    this.questions.push(this.questions[this.currentIndex]);
+                    setTimeout(() => { feedback.innerText = ""; this.showQuestion(); }, 1500);
                 }
-            }
-
-            startLapTimer() {
-                this.lapTimerInterval = setInterval(() => {
-                    document.getElementById('timer').innerText = ((Date.now() - this.startTime) / 1000).toFixed(2) + 's';
-                }, 50);
             }
 
             finish() {
-                clearInterval(this.lapTimerInterval);
+                clearInterval(this.lapInterval);
                 document.getElementById('quiz-screen').classList.add('hidden');
                 document.getElementById('result-screen').classList.remove('hidden');
-                
-                const totalQ = this.questions.length;
-                const accuracy = ((totalQ - this.missCount) / totalQ * 100).toFixed(1);
-                
-                const accEl = document.getElementById('accuracy-display');
-                accEl.innerText = `${accuracy}%`;
-                
-                if (accuracy >= 90) {
-                    accEl.classList.add('text-green-400');
-                    accEl.classList.remove('text-red-500');
-                } else {
-                    accEl.classList.add('text-red-500');
-                    accEl.classList.remove('text-green-400');
-                }
-
-                document.getElementById('rank-text').innerText = `Time: ${document.getElementById('timer').innerText} | Misses: ${this.missCount}`;
+                const acc = ((this.questions.length - this.missCount) / this.questions.length * 100).toFixed(1);
+                document.getElementById('accuracy-display').innerText = `${acc}%`;
+                document.getElementById('rank-text').innerText = `TIME: ${document.getElementById('timer').innerText} | MISSES: ${this.missCount}`;
             }
 
-            returnToGrid() {
+            returnToPaddock() {
                 document.getElementById('result-screen').classList.add('hidden');
                 document.getElementById('start-screen').classList.remove('hidden');
             }
-        }
 
-        window.quiz = new ChemQuizV3();
+            resumeTimer() {
+                this.pauseTimer();
+                const ind = document.getElementById('red-flag-indicator');
+                ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div><span class="text-[10px] text-green-500 font-bold uppercase">Green Flag</span>`;
+                this.stintInterval = setInterval(() => {
+                    this.stintTime++;
+                    localStorage.setItem('chem_time', this.stintTime);
+                    this.updateHUD();
+                }, 1000);
+            }
+
+            pauseTimer() {
+                clearInterval(this.stintInterval);
+                const ind = document.getElementById('red-flag-indicator');
+                if(ind) ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-600"></div><span class="text-[10px] text-red-600 font-bold uppercase">Red Flag</span>`;
+            }
+
+            updateHUD() {
+                const m = String(Math.floor(this.stintTime / 60)).padStart(2, '0');
+                const s = String(this.stintTime % 60).padStart(2, '0');
+                document.getElementById('stint-clock').innerText = `${m}:${s}`;
+            }
+        }
+        window.quiz = new ChemQuizV4();
     </script>
 </body>
 </html>
