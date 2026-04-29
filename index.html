@@ -10,7 +10,7 @@
     <title>RB-28 Chem Hybrid Evolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,400;1,600;1,700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
         :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
         html, body {
             height: 100%; width: 100%; overflow: hidden; 
@@ -18,6 +18,7 @@
             font-family: 'Inter', sans-serif;
             touch-action: manipulation; overscroll-behavior: none;
             -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent; /* スマホ特有のタップハイライトを消す */
         }
         .f1-font { font-family: 'Chakra Petch', sans-serif; }
         #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; }
@@ -26,25 +27,28 @@
             background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
-        /* タブのスタイル */
         .tab-btn {
             white-space: nowrap; padding: 1rem 1.5rem; font-weight: bold; font-family: 'Chakra Petch';
             border-bottom: 3px solid transparent; color: #64748b; transition: all 0.2s;
             text-transform: uppercase; letter-spacing: 0.1em;
         }
         .tab-btn.active { border-bottom-color: var(--f1-red); color: #ffffff; text-shadow: 0 0 10px rgba(225,6,0,0.5); }
-        /* グリッドカード */
         .sub-card {
             background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
             border-radius: 0.5rem; transition: all 0.2s; cursor: pointer;
         }
         .sub-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.08); }
-        /* タイヤボタン */
         .tire-btn { opacity: 0.5; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
         .tire-btn.active { opacity: 1; border-width: 2px; transform: scale(1.05); }
         .tire-soft.active { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.3); }
         .tire-medium.active { border-color: #eab308; color: #eab308; box-shadow: 0 0 10px rgba(234,179,8,0.3); }
         .tire-hard.active { border-color: #f8fafc; color: #f8fafc; box-shadow: 0 0 10px rgba(248,250,252,0.3); }
+        
+        /* 選択肢ボタンのdisabled状態（連打ロック中）のスタイル */
+        .option-btn { transition: all 0.1s; cursor: pointer; }
+        .option-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
+        .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
         @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
         .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
     </style>
@@ -82,7 +86,6 @@
             </div>
 
             <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar"></div>
-
             <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 pb-10"></div>
         </div>
 
@@ -141,6 +144,10 @@
     </div>
 
     <script>
+        // スマホでのダブルタップによるズームなどの誤作動をブロック
+        document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
+        document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
+
         // --- データマネージャー ---
         const appData = {
             "非金属1": {
@@ -431,6 +438,7 @@
                 this.stintTime = 0;
                 this.stintInterval = null;
                 this.stintActive = false;
+                this.isLocked = false; // 連打対策用ロックフラグ
 
                 this.initStint();
                 this.initUI();
@@ -512,6 +520,7 @@
                 this.questions = [...parsed].sort(() => Math.random() - 0.5).slice(0, this.tireLimit);
                 this.currentIndex = 0;
                 this.missCount = 0;
+                this.isLocked = false;
                 this.startTime = Date.now();
                 
                 this.closeSetup();
@@ -539,12 +548,22 @@
             }
 
             handleAns(selected, correct) {
+                // 連打対策：すでに判定中（ロック状態）なら入力を弾く
+                if (this.isLocked) return;
+                this.isLocked = true;
+
+                // 画面上の全選択肢ボタンを物理的に無効化する
+                const btns = document.querySelectorAll('.option-btn');
+                btns.forEach(b => b.disabled = true);
+
                 const feedback = document.getElementById('feedback');
+                
                 if (selected === correct) {
                     feedback.innerHTML = '<span class="text-green-500">PURPLE SECTOR</span>';
                     setTimeout(() => {
                         feedback.innerText = "";
                         this.currentIndex++;
+                        this.isLocked = false; // ロック解除
                         if (this.currentIndex < this.questions.length) this.showQuestion();
                         else this.finish();
                     }, 400);
@@ -552,7 +571,11 @@
                     this.missCount++;
                     feedback.innerHTML = '<span class="text-red-600">DAMAGE DETECTED</span>';
                     this.questions.push(this.questions[this.currentIndex]);
-                    setTimeout(() => { feedback.innerText = ""; this.showQuestion(); }, 1500);
+                    setTimeout(() => { 
+                        feedback.innerText = ""; 
+                        this.isLocked = false; // ロック解除
+                        this.showQuestion(); 
+                    }, 1500);
                 }
             }
 
