@@ -5,30 +5,34 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <link rel="apple-touch-icon" href="icon.png">
+    <link rel="apple-touch-icon" id="apple-touch-icon" href="icon.png">
     <meta name="theme-color" content="#0b0e14">
     <title>RB-28 Chem Hybrid Evolution</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
         :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
+        
+        /* 背景レイヤー */
+        #custom-bg { background-color: #0b0e14; background-size: cover; background-position: center; transition: background-image 0.5s ease; }
+        #bg-overlay { background: rgba(11, 14, 20, 0.75); } /* 視認性確保のシールド */
+
         html, body {
             height: 100%; width: 100%; overflow: hidden; 
-            background-color: #0b0e14; color: #e2e8f0;
-            font-family: 'Inter', sans-serif;
+            color: #e2e8f0; font-family: 'Inter', sans-serif;
             touch-action: manipulation; overscroll-behavior: none;
             -webkit-user-select: none; user-select: none;
             -webkit-tap-highlight-color: transparent; 
         }
         .f1-font { font-family: 'Chakra Petch', sans-serif; }
-        #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; }
+        #app { height: 100%; overflow-y: auto; padding: 1rem; scrollbar-width: none; position: relative; z-index: 10; }
         #app::-webkit-scrollbar { display: none; }
         
         sub { font-size: 0.65em; bottom: -0.2em; position: relative; }
         sup { font-size: 0.65em; top: -0.4em; position: relative; }
 
         .race-card {
-            background: rgba(11, 14, 20, 0.95); backdrop-filter: blur(10px);
+            background: rgba(11, 14, 20, 0.85); backdrop-filter: blur(12px);
             border: 1px solid rgba(255, 255, 255, 0.1);
         }
         .tab-btn {
@@ -38,10 +42,10 @@
         }
         .tab-btn.active { border-bottom-color: var(--f1-red); color: #ffffff; text-shadow: 0 0 10px rgba(225,6,0,0.5); }
         .sub-card {
-            background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08);
+            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 0.5rem; transition: all 0.2s; cursor: pointer;
         }
-        .sub-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.08); }
+        .sub-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.1); }
         .tire-btn { opacity: 0.5; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
         .tire-btn.active { opacity: 1; border-width: 2px; transform: scale(1.05); }
         .tire-soft.active { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.3); }
@@ -58,6 +62,9 @@
 </head>
 <body>
 
+    <div id="custom-bg" class="fixed inset-0 z-[-2]"></div>
+    <div id="bg-overlay" class="fixed inset-0 z-[-1]"></div>
+
     <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
         <div class="flex flex-col">
             <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter">Live Stint Time</span>
@@ -70,26 +77,67 @@
     </div>
 
     <div id="app" class="w-full max-w-6xl mx-auto">
-        <div id="gate-screen" class="race-card p-8 rounded-2xl text-center my-auto mt-20 max-w-md mx-auto">
+        <div id="gate-screen" class="race-card p-8 rounded-2xl text-center my-auto mt-20 max-w-md mx-auto shadow-2xl">
+            <div class="flex justify-center mb-6">
+                <img id="gate-app-icon" src="" class="w-24 h-24 rounded-2xl border-2 border-gray-700 object-cover shadow-lg hidden">
+            </div>
             <h1 class="f1-font text-5xl mb-2 font-bold text-white italic">RB<span class="text-red-600">-28</span></h1>
             <p class="text-gray-400 font-mono text-[10px] uppercase tracking-[0.4em] mb-12">Chem Hybrid Evolution</p>
-            <button id="gate-login-btn" class="w-full f1-font bg-white text-black py-4 rounded-xl font-bold uppercase active:scale-95 transition-all">Engage Engine</button>
+            <button id="gate-login-btn" class="w-full f1-font bg-white text-black py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
         </div>
 
         <div id="start-screen" class="hidden flex flex-col h-full mt-12 animate-slide-in">
-            <div class="flex justify-between items-end border-b border-gray-800 pb-4 px-2">
+            <div class="flex justify-between items-end border-b border-gray-700 pb-4 px-2">
                 <div class="flex items-center gap-3">
-                    <div class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
+                    <div id="paddock-icon-container" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 overflow-hidden flex items-center justify-center hidden">
+                        <img id="paddock-app-icon" src="" class="w-full h-full object-cover">
+                    </div>
+                    <div id="default-paddock-icon" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
                     <p id="user-name" class="f1-font text-xl text-white font-bold">HIRO</p>
                 </div>
-                <div class="text-right">
-                    <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
-                    <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
+                        <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
+                    </div>
+                    <button onclick="quiz.openSystemSettings()" class="p-2 text-gray-400 hover:text-white transition bg-gray-800/50 rounded-lg border border-gray-700 active:scale-90">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
+                    </button>
                 </div>
             </div>
 
             <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar"></div>
             <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 pb-10"></div>
+        </div>
+
+        <div id="system-settings-modal" class="hidden fixed inset-0 z-[150] bg-black/80 flex items-center justify-center p-4">
+            <div class="w-full max-w-md race-card rounded-2xl p-6 border-t-4 border-gray-500 shadow-2xl">
+                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
+                    <h3 class="f1-font text-xl font-bold text-white uppercase tracking-widest">Paddock Settings</h3>
+                    <button onclick="quiz.closeSystemSettings()" class="text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="bg-black/40 p-4 rounded-xl border border-gray-800">
+                        <label class="block text-xs text-gray-400 uppercase font-bold mb-2">Livery (Wallpaper)</label>
+                        <input type="file" accept="image/*" id="wallpaper-upload" class="hidden" onchange="quiz.handleImageUpload(event, 'chem_wallpaper')">
+                        <div class="flex gap-2">
+                            <label for="wallpaper-upload" class="flex-1 bg-gray-700 hover:bg-gray-600 text-center py-2 rounded-lg cursor-pointer text-sm font-bold transition">Upload Image</label>
+                            <button onclick="quiz.clearImage('chem_wallpaper')" class="bg-red-900/50 hover:bg-red-600 text-white px-4 rounded-lg text-sm font-bold transition border border-red-900">Reset</button>
+                        </div>
+                    </div>
+
+                    <div class="bg-black/40 p-4 rounded-xl border border-gray-800">
+                        <label class="block text-xs text-gray-400 uppercase font-bold mb-2">Driver Badge (App Icon)</label>
+                        <input type="file" accept="image/*" id="icon-upload" class="hidden" onchange="quiz.handleImageUpload(event, 'chem_app_icon')">
+                        <div class="flex gap-2">
+                            <label for="icon-upload" class="flex-1 bg-gray-700 hover:bg-gray-600 text-center py-2 rounded-lg cursor-pointer text-sm font-bold transition">Upload Icon</label>
+                            <button onclick="quiz.clearImage('chem_app_icon')" class="bg-red-900/50 hover:bg-red-600 text-white px-4 rounded-lg text-sm font-bold transition border border-red-900">Reset</button>
+                        </div>
+                        <p class="text-[10px] text-gray-500 mt-2">※iOS等でホーム画面に追加する際のアイコンにも反映されます。</p>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
@@ -132,7 +180,7 @@
             </div>
             
             <div class="flex-grow flex flex-col justify-center items-center">
-                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed"></h2>
+                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-black/40 rounded-r-lg p-2"></h2>
                 <div id="options-container" class="grid grid-cols-1 gap-3 mt-10 w-full max-w-md"></div>
             </div>
             <div id="feedback" class="h-8 mb-4 text-center font-bold uppercase tracking-widest"></div>
@@ -151,7 +199,7 @@
         document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
 
         const appData = {
-            "非金属1": {
+           "非金属1": {
                 "周期表と元素1": `
 1. フッ化水素HF、塩化水素HCl、臭化水素HBr、ヨウ化水素HIを酸の強い順に並べると？	【解答】 HI > HBr > HCl > HF
 2. ハロゲン化水素のうち、弱酸であるものは？	【解答】 フッ化水素HF
@@ -443,12 +491,78 @@
                 this.stintActive = false;
                 this.isLocked = false; 
 
+                this.loadCustomizations(); // 壁紙・アイコンのロード
                 this.buildGlobalPool();
                 this.initStint();
                 this.initUI();
             }
 
-            // --- 新機能：全データを収集するグローバルプール ---
+            // --- 新機能：カスタム壁紙・アイコン処理 ---
+            loadCustomizations() {
+                const wallpaper = localStorage.getItem('chem_wallpaper');
+                if (wallpaper) this.applyWallpaper(wallpaper);
+
+                const appIcon = localStorage.getItem('chem_app_icon');
+                if (appIcon) this.applyAppIcon(appIcon);
+            }
+
+            applyWallpaper(base64Str) {
+                document.getElementById('custom-bg').style.backgroundImage = `url(${base64Str})`;
+            }
+
+            applyAppIcon(base64Str) {
+                // Gateの大きなアイコン
+                const gateIcon = document.getElementById('gate-app-icon');
+                gateIcon.src = base64Str;
+                gateIcon.classList.remove('hidden');
+
+                // Paddockの小さいアイコン
+                const paddockIconContainer = document.getElementById('paddock-icon-container');
+                const paddockIcon = document.getElementById('paddock-app-icon');
+                const defaultIcon = document.getElementById('default-paddock-icon');
+                paddockIcon.src = base64Str;
+                paddockIconContainer.classList.remove('hidden');
+                defaultIcon.classList.add('hidden');
+
+                // PWA用の <link rel="apple-touch-icon"> も書き換える
+                document.getElementById('apple-touch-icon').href = base64Str;
+            }
+
+            handleImageUpload(event, storageKey) {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const base64Str = e.target.result;
+                    try {
+                        localStorage.setItem(storageKey, base64Str);
+                        if (storageKey === 'chem_wallpaper') this.applyWallpaper(base64Str);
+                        if (storageKey === 'chem_app_icon') this.applyAppIcon(base64Str);
+                    } catch (err) {
+                        alert("画像のサイズが大きすぎます。もう少し容量の小さい画像を選んでください。");
+                    }
+                };
+                reader.readAsDataURL(file);
+            }
+
+            clearImage(storageKey) {
+                localStorage.removeItem(storageKey);
+                if (storageKey === 'chem_wallpaper') {
+                    document.getElementById('custom-bg').style.backgroundImage = 'none';
+                }
+                if (storageKey === 'chem_app_icon') {
+                    document.getElementById('gate-app-icon').classList.add('hidden');
+                    document.getElementById('paddock-icon-container').classList.add('hidden');
+                    document.getElementById('default-paddock-icon').classList.remove('hidden');
+                    document.getElementById('apple-touch-icon').href = 'icon.png';
+                }
+            }
+
+            openSystemSettings() { document.getElementById('system-settings-modal').classList.remove('hidden'); }
+            closeSystemSettings() { document.getElementById('system-settings-modal').classList.add('hidden'); }
+            // ------------------------------------
+
             buildGlobalPool() {
                 let ansPool = [];
                 let qPool = [];
@@ -570,7 +684,6 @@
                 this.showQuestion();
             }
 
-            // --- 新機能：類似度スコアリングエンジン ---
             showQuestion() {
                 const q = this.questions[this.currentIndex];
                 document.getElementById('lap-counter').innerText = `LAP ${this.currentIndex + 1}/${this.questions.length}`;
@@ -580,20 +693,14 @@
                 
                 const ans = this.isReverse ? q.q : q.a;
                 
-                // 全てのデータから候補を取得
                 let globalPool = this.isReverse ? this.globalQuestions : this.globalAnswers;
                 let pool = globalPool.filter(x => x !== ans);
 
-                // スコアリング（似ている選択肢を高得点にする）
                 pool.sort((a, b) => {
                     let scoreA = 0;
                     let scoreB = 0;
-
-                    // 1. 文字数の近さ
                     scoreA -= Math.abs(a.length - ans.length);
                     scoreB -= Math.abs(b.length - ans.length);
-
-                    // 2. 「A:」等のフォーマット一致
                     const hasA = (str) => /A[:：]/.test(str);
                     if (hasA(ans)) {
                         if (hasA(a)) scoreA += 100;
@@ -602,8 +709,6 @@
                         if (hasA(a)) scoreA -= 100;
                         if (hasA(b)) scoreB -= 100;
                     }
-
-                    // 3. 不等号のフォーマット一致
                     const hasIneq = (str) => /[<><＞＜]/.test(str);
                     if (hasIneq(ans)) {
                         if (hasIneq(a)) scoreA += 100;
@@ -612,24 +717,20 @@
                         if (hasIneq(a)) scoreA -= 100;
                         if (hasIneq(b)) scoreB -= 100;
                     }
-
-                    return scoreB - scoreA; // 降順
+                    return scoreB - scoreA; 
                 });
 
-                // 上位8個からランダムに抽出
                 let topCandidates = pool.slice(0, 8).sort(() => Math.random() - 0.5);
                 let distractors = topCandidates.slice(0, 3);
 
-                // もし「A:〇〇、B:✕✕」の形式なら、AとBを逆転させた強烈な引っかけを生成
                 if (!this.isReverse && /A[:：].*B[:：]/.test(ans)) {
                     let swapped = ans.replace(/(A[:：])([^,、]+)([,、]\s*B[:：])(.+)/, '$1$4$3$2');
                     if (swapped !== ans && !distractors.includes(swapped)) {
-                        distractors.pop(); // 1つ消して
-                        distractors.push(swapped); // ダミーをねじ込む
+                        distractors.pop(); 
+                        distractors.push(swapped); 
                     }
                 }
 
-                // データ不足時のフェイルセーフ
                 while (distractors.length < 3) {
                     distractors.push(`[Dummy] データ不足 ${distractors.length + 1}`);
                 }
