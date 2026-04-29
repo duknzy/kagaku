@@ -95,48 +95,14 @@
                     <div id="default-paddock-icon" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
                     <p id="user-name" class="f1-font text-xl text-white font-bold">HIRO</p>
                 </div>
-                <div class="flex items-center gap-4">
-                    <div class="text-right">
-                        <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
-                        <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
-                    </div>
-                    <button onclick="quiz.openSystemSettings()" class="p-2 text-gray-400 hover:text-white transition bg-gray-800/50 rounded-lg border border-gray-700 active:scale-90">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg>
-                    </button>
+                <div class="text-right">
+                    <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
+                    <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
                 </div>
             </div>
 
             <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar"></div>
             <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4 pb-10"></div>
-        </div>
-
-        <div id="system-settings-modal" class="hidden fixed inset-0 z-[150] bg-black/80 flex items-center justify-center p-4">
-            <div class="w-full max-w-md race-card rounded-2xl p-6 border-t-4 border-gray-500 shadow-2xl">
-                <div class="flex justify-between items-center mb-6 border-b border-gray-700 pb-4">
-                    <h3 class="f1-font text-xl font-bold text-white uppercase tracking-widest">Paddock Settings</h3>
-                    <button onclick="quiz.closeSystemSettings()" class="text-gray-400 hover:text-white text-2xl font-bold">&times;</button>
-                </div>
-
-                <div class="space-y-6">
-                    <div class="bg-black/40 p-4 rounded-xl border border-gray-800">
-                        <label class="block text-xs text-gray-400 uppercase font-bold mb-2">Livery (Wallpaper)</label>
-                        <input type="file" accept="image/*" id="wallpaper-upload" class="hidden" onchange="quiz.handleImageUpload(event, 'chem_wallpaper')">
-                        <div class="flex gap-2">
-                            <label for="wallpaper-upload" class="flex-1 bg-gray-700 hover:bg-gray-600 text-center py-2 rounded-lg cursor-pointer text-sm font-bold transition">Upload Image</label>
-                            <button onclick="quiz.clearImage('chem_wallpaper')" class="bg-red-900/50 hover:bg-red-600 text-white px-4 rounded-lg text-sm font-bold transition border border-red-900">Reset</button>
-                        </div>
-                    </div>
-
-                    <div class="bg-black/40 p-4 rounded-xl border border-gray-800">
-                        <label class="block text-xs text-gray-400 uppercase font-bold mb-2">Driver Badge (App Icon)</label>
-                        <input type="file" accept="image/*" id="icon-upload" class="hidden" onchange="quiz.handleImageUpload(event, 'chem_app_icon')">
-                        <div class="flex gap-2">
-                            <label for="icon-upload" class="flex-1 bg-gray-700 hover:bg-gray-600 text-center py-2 rounded-lg cursor-pointer text-sm font-bold transition">Upload Icon</label>
-                            <button onclick="quiz.clearImage('chem_app_icon')" class="bg-red-900/50 hover:bg-red-600 text-white px-4 rounded-lg text-sm font-bold transition border border-red-900">Reset</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
         </div>
 
         <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
@@ -199,11 +165,10 @@
         document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
         document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
 
-        class ChemQuizV6 {
+        class ChemQuizV7 {
             constructor() {
-                // data.js が読み込めているか（appDataが存在するか）チェック
                 if (typeof appData === 'undefined') {
-                    alert("Telemetry Error: data.js が見つからない。同じフォルダに data.js を作成してデータを入れろ。");
+                    alert("Telemetry Error: data.js が見つからない。同じフォルダに data.js を作成しろ。");
                     return;
                 }
 
@@ -219,70 +184,35 @@
                 this.stintActive = false;
                 this.isLocked = false; 
 
-                this.loadCustomizations(); 
+                this.applyConfig(); // data.js の設定を読み込む
                 this.buildGlobalPool();
                 this.initStint();
                 this.initUI();
             }
 
-            loadCustomizations() {
-                const wallpaper = localStorage.getItem('chem_wallpaper');
-                if (wallpaper) this.applyWallpaper(wallpaper);
+            // --- 新機能：data.jsからのコンフィグ自動反映 ---
+            applyConfig() {
+                if (typeof appConfig === 'undefined') return;
 
-                const appIcon = localStorage.getItem('chem_app_icon');
-                if (appIcon) this.applyAppIcon(appIcon);
-            }
-
-            applyWallpaper(base64Str) { document.getElementById('custom-bg').style.backgroundImage = `url(${base64Str})`; }
-
-            applyAppIcon(base64Str) {
-                const gateIcon = document.getElementById('gate-app-icon');
-                gateIcon.src = base64Str;
-                gateIcon.classList.remove('hidden');
-
-                const paddockIconContainer = document.getElementById('paddock-icon-container');
-                const paddockIcon = document.getElementById('paddock-app-icon');
-                const defaultIcon = document.getElementById('default-paddock-icon');
-                paddockIcon.src = base64Str;
-                paddockIconContainer.classList.remove('hidden');
-                defaultIcon.classList.add('hidden');
-
-                document.getElementById('apple-touch-icon').href = base64Str;
-            }
-
-            handleImageUpload(event, storageKey) {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    const base64Str = e.target.result;
-                    try {
-                        localStorage.setItem(storageKey, base64Str);
-                        if (storageKey === 'chem_wallpaper') this.applyWallpaper(base64Str);
-                        if (storageKey === 'chem_app_icon') this.applyAppIcon(base64Str);
-                    } catch (err) {
-                        alert("画像のサイズが大きすぎる。スマホの写真をスクショして容量を下げてからアップしろ。");
-                    }
-                };
-                reader.readAsDataURL(file);
-            }
-
-            clearImage(storageKey) {
-                localStorage.removeItem(storageKey);
-                if (storageKey === 'chem_wallpaper') {
-                    document.getElementById('custom-bg').style.backgroundImage = 'none';
+                if (appConfig.wallpaperUrl) {
+                    document.getElementById('custom-bg').style.backgroundImage = `url('${appConfig.wallpaperUrl}')`;
                 }
-                if (storageKey === 'chem_app_icon') {
-                    document.getElementById('gate-app-icon').classList.add('hidden');
-                    document.getElementById('paddock-icon-container').classList.add('hidden');
-                    document.getElementById('default-paddock-icon').classList.remove('hidden');
-                    document.getElementById('apple-touch-icon').href = 'icon.png';
+
+                if (appConfig.appIconUrl) {
+                    const gateIcon = document.getElementById('gate-app-icon');
+                    gateIcon.src = appConfig.appIconUrl;
+                    gateIcon.classList.remove('hidden');
+
+                    const paddockIconContainer = document.getElementById('paddock-icon-container');
+                    const paddockIcon = document.getElementById('paddock-app-icon');
+                    const defaultIcon = document.getElementById('default-paddock-icon');
+                    paddockIcon.src = appConfig.appIconUrl;
+                    paddockIconContainer.classList.remove('hidden');
+                    defaultIcon.classList.add('hidden');
+
+                    document.getElementById('apple-touch-icon').href = appConfig.appIconUrl;
                 }
             }
-
-            openSystemSettings() { document.getElementById('system-settings-modal').classList.remove('hidden'); }
-            closeSystemSettings() { document.getElementById('system-settings-modal').classList.add('hidden'); }
 
             buildGlobalPool() {
                 let ansPool = [];
@@ -536,7 +466,7 @@
             }
         }
         
-        window.quiz = new ChemQuizV6();
+        window.quiz = new ChemQuizV7();
     </script>
 </body>
 </html>
