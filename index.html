@@ -72,10 +72,12 @@
         sub { font-size: 0.65em; bottom: -0.2em; position: relative; }
         sup { font-size: 0.65em; top: -0.4em; position: relative; }
 
-       .race-card {
-            background: rgba(11, 14, 20, 0.3); backdrop-filter: blur(16px);
-            border: 1px solid rgba(255, 255, 255, 0.15);
-        }
+       /* 修正後（曇りを消し、極限まで透明化） */
+.race-card {
+    background: rgba(11, 14, 20, 0.1); 
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+}
         .tab-btn {
             white-space: nowrap; padding: 1rem 1.5rem; font-weight: bold; font-family: 'Chakra Petch';
             border-bottom: 3px solid transparent; color: #64748b; transition: all 0.2s;
@@ -193,7 +195,8 @@
             </div>
             
             <div class="flex-grow flex flex-col justify-center items-center py-4">
-                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-black/40 rounded-r-lg"></h2>
+                <!-- 修正後（背景を完全に透明にし、文字を際立たせる） -->
+<h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-transparent drop-shadow-lg"></h2>
                 <div id="options-container" class="grid grid-cols-1 gap-3 mt-8 w-full max-w-2xl"></div>
             </div>
             <div id="feedback" class="h-8 mt-4 text-center font-bold uppercase tracking-widest"></div>
@@ -426,7 +429,8 @@
                 
                 options.forEach(opt => {
                     const btn = document.createElement('button');
-                    btn.className = "option-btn bg-gray-800 text-white p-4 rounded-xl border border-gray-700 text-left text-sm md:text-base font-bold shadow-lg";
+                   // 修正後（bg-gray-800 などを撤去し、bg-transparent に変更）
+btn.className = "option-btn w-full bg-transparent text-white drop-shadow-md p-4 rounded-xl border border-white/30 text-left text-sm md:text-base font-bold transition-all hover:bg-white/10 active:scale-95";
                     btn.innerHTML = this.formatChem(opt);
                     btn.onclick = () => this.handleAns(opt, ans);
                     container.appendChild(btn);
