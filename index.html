@@ -13,7 +13,6 @@
         @import url('https://fonts.googleapis.com/css2?family=Chakra+Petch:ital,wght@0,300;0,400;0,600;0,700;1,300;1,400;1,600;1,700&display=swap');
         :root { --f1-red: #e10600; --rb-navy: #0b0e14; }
 
-        /* index(9).html の純正CSSを完全移植 */
         html, body {
             height: 100%;
             width: 100%;
@@ -36,7 +35,6 @@
             padding-bottom: max(1rem, env(safe-area-inset-bottom));
         }
 
-        /* index(9)の背景動画と同じ完全固定レイヤーの仕様 */
         #custom-bg-img {
             position: fixed;
             right: 0;
@@ -72,35 +70,24 @@
         sub { font-size: 0.65em; bottom: -0.2em; position: relative; }
         sup { font-size: 0.65em; top: -0.4em; position: relative; }
 
-       /* 修正後（曇りを消し、極限まで透明化） */
-.race-card {
-    background: rgba(11, 14, 20, 0.1); 
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-}
-        .tab-btn {
-            white-space: nowrap; padding: 1rem 1.5rem; font-weight: bold; font-family: 'Chakra Petch';
-            border-bottom: 3px solid transparent; color: #64748b; transition: all 0.2s;
-            text-transform: uppercase; letter-spacing: 0.1em;
+        .race-card {
+            background: rgba(11, 14, 20, 0.1); 
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(5px);
+            -webkit-backdrop-filter: blur(5px);
         }
-        .tab-btn.active { border-bottom-color: var(--f1-red); color: #ffffff; text-shadow: 0 0 10px rgba(225,6,0,0.5); }
-        .sub-card {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 0.5rem; transition: all 0.2s; cursor: pointer;
-        }
-        .sub-card:active { transform: scale(0.97); background: rgba(255, 255, 255, 0.1); }
-        .tire-btn { opacity: 0.5; border: 1px solid rgba(255,255,255,0.2); transition: all 0.2s; }
-        .tire-btn.active { opacity: 1; border-width: 2px; transform: scale(1.05); }
-        .tire-soft.active { border-color: #ef4444; color: #ef4444; box-shadow: 0 0 10px rgba(239,68,68,0.3); }
-        .tire-medium.active { border-color: #eab308; color: #eab308; box-shadow: 0 0 10px rgba(234,179,8,0.3); }
-        .tire-hard.active { border-color: #f8fafc; color: #f8fafc; box-shadow: 0 0 10px rgba(248,250,252,0.3); }
         
-        .option-btn { transition: all 0.1s; cursor: pointer; }
+        .tire-btn { opacity: 0.4; transform: scale(0.95); transition: all 0.2s; border-width: 2px; }
+        .tire-btn.active { opacity: 1; transform: scale(1); box-shadow: 0 0 15px rgba(255,255,255,0.1); }
+        .tire-soft.active { border-color: #ef4444; color: #ef4444; } 
+        .tire-medium.active { border-color: #eab308; color: #eab308; } 
+        .tire-hard.active { border-color: #f8fafc; color: #f8fafc; } 
+        
+        .option-btn { transition: all 0.1s; cursor: pointer; border: 1px solid rgba(255,255,255,0.2); }
         .option-btn:active:not(:disabled) { transform: scale(0.96); background: rgba(255, 255, 255, 0.2); }
         .option-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
 
-        @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
-        .animate-slide-up { animation: slideUp 0.3s cubic-bezier(0.2, 0.8, 0.2, 1); }
         @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
         .animate-slide-in { animation: slideIn 0.3s ease-out forwards; }
 
@@ -114,6 +101,7 @@
 
     <img id="custom-bg-img" src="" alt="">
 
+    <!-- HUD -->
     <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
         <div class="flex flex-col items-start">
             <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter leading-none">Live Stint Time</span>
@@ -127,64 +115,112 @@
 
     <div id="app" class="w-full max-w-6xl mx-auto flex flex-col">
         
+        <!-- GATE SCREEN -->
         <div id="gate-screen" class="race-card p-8 rounded-2xl shadow-2xl text-center relative overflow-hidden animate-slide-in my-auto max-w-md mx-auto w-full">
             <div class="flex justify-center mb-6">
                 <img id="gate-app-icon" src="" class="w-24 h-24 rounded-2xl border-2 border-gray-700 object-cover shadow-lg hidden">
             </div>
             <h1 class="f1-font text-5xl mb-2 font-bold text-white italic tracking-wider">RB<span class="text-red-600">-28</span></h1>
             <p class="text-gray-400 font-mono text-xs uppercase tracking-[0.4em] mb-12">Chem Hybrid Evolution</p>
-            <button id="gate-login-btn" class="w-full f1-font bg-white text-black px-8 py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
+            <button id="gate-login-btn" class="w-full f1-font bg-white hover:bg-gray-200 text-black px-8 py-4 rounded-xl font-bold uppercase active:scale-95 transition-all shadow-[0_0_15px_rgba(255,255,255,0.4)]">Engage Engine</button>
         </div>
 
-        <div id="start-screen" class="hidden race-card p-4 md:p-6 rounded-2xl relative z-10 animate-slide-in my-auto w-full">
-            <div class="flex justify-between items-end border-b border-gray-700 pb-4 px-2">
-                <div class="flex items-center gap-3">
-                    <div id="paddock-icon-container" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 overflow-hidden flex items-center justify-center hidden">
-                        <img id="paddock-app-icon" src="" class="w-full h-full object-cover">
-                    </div>
-                    <div id="default-paddock-icon" class="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_#22c55e]"></div>
-                    <p id="user-name" class="f1-font text-xl text-white font-bold">HIRO</p>
-                </div>
-                <div class="text-right">
-                    <span class="text-[8px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
-                    <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
-                </div>
-            </div>
-
-            <div id="sector-tabs" class="flex overflow-x-auto border-b border-gray-800 mt-2 no-scrollbar shrink-0"></div>
-            <div id="sub-sector-grid" class="grid grid-cols-2 md:grid-cols-3 gap-3 mt-4"></div>
-        </div>
-
-        <div id="setup-modal" class="hidden fixed inset-0 z-[110] bg-black/80 flex items-end">
-            <div class="w-full bg-gray-900 rounded-t-3xl p-6 animate-slide-up border-t-2 border-red-600">
-                <div class="flex justify-between items-start mb-6">
-                    <div>
-                        <span id="setup-sector-name" class="text-[10px] text-red-500 font-bold uppercase tracking-widest">SECTOR 1</span>
-                        <h3 id="setup-sub-name" class="f1-font text-2xl font-bold text-white italic">SUB CATEGORY</h3>
-                    </div>
-                    <button onclick="quiz.closeSetup()" class="text-gray-500 text-3xl">&times;</button>
-                </div>
-
-                <div class="space-y-6">
-                    <div>
-                        <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Tire Strategy (Question Count)</p>
-                        <div class="grid grid-cols-3 gap-3">
-                            <button onclick="quiz.setTire(10, 'soft')" id="tire-soft" class="tire-btn tire-soft bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">Soft (10)</button>
-                            <button onclick="quiz.setTire(20, 'medium')" id="tire-medium" class="tire-btn tire-medium active bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">Med (20)</button>
-                            <button onclick="quiz.setTire(999, 'hard')" id="tire-hard" class="tire-btn tire-hard bg-black/40 py-3 rounded-lg f1-font text-xs font-bold uppercase">All</button>
+        <!-- NEW TAKUMA-STYLE START SCREEN -->
+        <div id="start-screen" class="hidden race-card p-4 md:p-6 rounded-2xl relative z-10 animate-slide-in my-auto w-full max-w-5xl mx-auto">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-8">
+                
+                <!-- 左側：ドライバー情報＆スタートボタン -->
+                <div class="md:col-span-5 flex flex-col gap-6">
+                    <div class="flex justify-between items-end border-b border-gray-700 pb-4">
+                        <div class="flex items-center gap-3">
+                            <div id="paddock-icon-container" class="w-8 h-8 rounded-full bg-gray-800 border border-gray-500 overflow-hidden flex items-center justify-center hidden">
+                                <img id="paddock-app-icon" src="" class="w-full h-full object-cover">
+                            </div>
+                            <div id="default-paddock-icon" class="w-3 h-3 rounded-full bg-green-500 animate-pulse shadow-[0_0_10px_#22c55e]"></div>
+                            <p id="user-name" class="f1-font text-xl text-white font-bold truncate">HIRO</p>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-gray-500 uppercase tracking-widest block">Stint Status</span>
+                            <span class="f1-font text-sm text-green-500 font-bold">OPTIMAL</span>
                         </div>
                     </div>
+
+                    <!-- テレメトリーダミー表示（F1テイスト強化） -->
                     <div class="grid grid-cols-2 gap-4">
-                        <label class="flex items-center justify-between bg-black/30 p-4 rounded-lg border border-gray-800">
-                            <span class="text-xs font-bold text-gray-300">REVERSE GRID</span>
-                            <input type="checkbox" id="reverse-mode" class="w-5 h-5 accent-red-600">
-                        </label>
+                        <div class="bg-red-900/20 p-4 rounded-xl border border-red-900/30 text-center relative overflow-hidden">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Engine Map</p>
+                            <span class="f1-font text-xl text-red-500 font-bold">AGGRESSIVE</span>
+                        </div>
+                        <div class="bg-blue-900/20 p-4 rounded-xl border border-blue-900/30 text-center relative overflow-hidden">
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Downforce</p>
+                            <span class="f1-font text-xl text-blue-400 font-bold">MAXIMUM</span>
+                        </div>
                     </div>
-                    <button onclick="quiz.startRace()" class="w-full f1-font bg-red-600 text-white py-5 rounded-xl font-bold uppercase text-xl shadow-lg active:scale-95 transition-all">Start Race</button>
+
+                    <div class="mt-auto flex flex-col gap-3">
+                        <button onclick="quiz.startRace()" class="w-full f1-font bg-gradient-to-r from-red-600 to-red-700 hover:from-red-500 hover:to-red-600 text-white py-6 rounded-xl font-bold tracking-[0.2em] uppercase transition-all transform active:scale-[0.98] shadow-lg shadow-red-900/40 text-2xl border-b-4 border-red-900 flex items-center justify-center gap-3">
+                            Start Race
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 右側：Race Strategy (1画面設定パネル) -->
+                <div class="md:col-span-7 flex flex-col gap-4 border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-8">
+                    
+                    <div class="flex items-center gap-2 mb-2">
+                        <span class="text-gray-400">⚙️</span>
+                        <h3 class="f1-font text-lg font-bold text-white tracking-widest uppercase">Race Strategy</h3>
+                        <p id="strategy-summary" class="ml-auto text-[10px] text-gray-500 font-mono border border-gray-700 px-2 py-1 rounded bg-black/50"></p>
+                    </div>
+
+                    <div class="space-y-5">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <div>
+                                <label class="text-gray-500 text-[10px] uppercase tracking-widest block mb-2">Category (Sector)</label>
+                                <div class="relative">
+                                    <select id="category-selector" class="w-full bg-black/50 text-white p-3 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-mono text-xs appearance-none cursor-pointer hover:bg-black/70 transition-colors" onchange="quiz.updateSubCategories()"></select>
+                                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500">▼</div>
+                                </div>
+                            </div>
+                            <div>                                    
+                                <label class="text-gray-500 text-[10px] uppercase tracking-widest block mb-2">Sub Category (Corner)</label>
+                                <div class="relative">
+                                    <select id="sub-category-selector" class="w-full bg-black/50 text-white p-3 rounded-lg border border-gray-600 focus:border-red-500 outline-none font-mono text-xs appearance-none cursor-pointer hover:bg-black/70 transition-colors" onchange="quiz.updateSummary()"></select>
+                                    <div class="absolute right-4 top-1/2 transform -translate-y-1/2 pointer-events-none text-gray-500">▼</div>
+                                </div>
+                            </div>
+                        </div> 
+
+                        <div>
+                            <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-3">Tire Strategy (Questions per Lap)</p>
+                            <div class="grid grid-cols-3 gap-3">
+                                <button onclick="quiz.setTire(10, 'soft')" id="tire-soft" class="tire-btn tire-soft bg-black/40 text-gray-400 py-3 rounded-lg border border-gray-700 f1-font text-xs font-bold uppercase tracking-wider hover:bg-gray-800">
+                                    <span class="block text-xs mb-1">🔴 Soft</span>
+                                    <span class="text-[10px] opacity-70">(10 Qs)</span>
+                                </button>
+                                <button onclick="quiz.setTire(20, 'medium')" id="tire-medium" class="tire-btn tire-medium active bg-black/40 text-gray-400 py-3 rounded-lg border border-gray-700 f1-font text-xs font-bold uppercase tracking-wider hover:bg-gray-800">
+                                    <span class="block text-xs mb-1">🟡 Medium</span>
+                                    <span class="text-[10px] opacity-70">(20 Qs)</span>
+                                </button>
+                                <button onclick="quiz.setTire(999, 'hard')" id="tire-hard" class="tire-btn tire-hard bg-black/40 text-gray-400 py-3 rounded-lg border border-gray-700 f1-font text-xs font-bold uppercase tracking-wider hover:bg-gray-800">
+                                    <span class="block text-xs mb-1">⚪ Hard</span>
+                                    <span class="text-[10px] opacity-70">(ALL)</span>
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 gap-4 border-t border-gray-800 pt-4">
+                             <label class="flex items-center justify-between cursor-pointer group bg-black/30 p-4 rounded-lg border border-gray-800 hover:border-gray-600 transition-colors">
+                                <span class="text-xs font-bold text-gray-300 group-hover:text-cyan-400 transition-colors flex items-center gap-2"><span class="text-cyan-400">🔄</span> REVERSE GRID (解答→問題)</span>
+                                <input type="checkbox" id="reverse-mode" class="w-5 h-5 cursor-pointer accent-red-600" onchange="quiz.updateSummary()">
+                            </label>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
+        <!-- QUIZ SCREEN -->
         <div id="quiz-screen" class="hidden race-card p-6 rounded-2xl shadow-2xl relative flex flex-col justify-between my-auto min-h-[500px] w-full max-w-4xl mx-auto z-20">
             <div class="flex justify-between items-start mb-6">
                 <div>
@@ -195,18 +231,18 @@
             </div>
             
             <div class="flex-grow flex flex-col justify-center items-center py-4">
-                <!-- 修正後（背景を完全に透明にし、文字を際立たせる） -->
-<h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-transparent drop-shadow-lg"></h2>
+                <h2 id="target-word" class="font-bold text-white text-lg md:text-2xl max-w-2xl w-full text-left border-l-4 border-red-600 pl-4 py-2 leading-relaxed bg-transparent drop-shadow-lg"></h2>
                 <div id="options-container" class="grid grid-cols-1 gap-3 mt-8 w-full max-w-2xl"></div>
             </div>
             <div id="feedback" class="h-8 mt-4 text-center font-bold uppercase tracking-widest"></div>
         </div>
 
+        <!-- RESULT SCREEN -->
         <div id="result-screen" class="hidden race-card p-8 rounded-2xl shadow-2xl text-center animate-slide-in my-auto max-w-2xl mx-auto w-full z-20">
             <h2 class="f1-font text-4xl mb-2 font-bold text-white italic">CHECKERED FLAG</h2>
             <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
             <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
-            <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-red-900/50">Return to Paddock</button>
+            <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-red-900/50">Return to Garage</button>
         </div>
     </div>
 
@@ -216,7 +252,7 @@
         document.addEventListener('dblclick', function(event) { event.preventDefault(); }, { passive: false });
         document.addEventListener('touchmove', function(event) { if (event.scale !== 1) { event.preventDefault(); } }, { passive: false });
 
-        class ChemQuizV11 {
+        class ChemQuizV12 {
             constructor() {
                 if (typeof appData === 'undefined') {
                     alert("Telemetry Error: data.js が見つからない。同じフォルダに作成しろ。");
@@ -243,12 +279,7 @@
 
             applyConfig() {
                 if (typeof appConfig === 'undefined') return;
-                
-                if (appConfig.wallpaperUrl) {
-                    // index(9)と同じ方法で画像のsrcに直接ぶち込む
-                    document.getElementById('custom-bg-img').src = appConfig.wallpaperUrl;
-                }
-                
+                if (appConfig.wallpaperUrl) document.getElementById('custom-bg-img').src = appConfig.wallpaperUrl;
                 if (appConfig.appIconUrl) {
                     const gateIcon = document.getElementById('gate-app-icon');
                     gateIcon.src = appConfig.appIconUrl;
@@ -309,51 +340,51 @@
                     document.getElementById('start-screen').classList.remove('hidden');
                     this.stintActive = true;
                     this.resumeTimer();
-                    this.renderTabs();
+                    this.renderSelectors();
                 };
             }
 
-            renderTabs() {
-                const container = document.getElementById('sector-tabs');
+            renderSelectors() {
+                const catSelector = document.getElementById('category-selector');
                 const categories = Object.keys(appData);
-                container.innerHTML = categories.map((cat, i) => 
-                    `<button class="tab-btn ${i===0?'active':''}" onclick="quiz.switchTab('${cat}', this)">${cat}</button>`
-                ).join('');
-                this.switchTab(categories[0], container.firstChild);
+                catSelector.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+                this.updateSubCategories();
             }
 
-            switchTab(cat, btn) {
-                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const grid = document.getElementById('sub-sector-grid');
-                grid.innerHTML = Object.entries(appData[cat]).map(([name, data]) => {
-                    const count = data.trim().split('\n').filter(l => l.includes('【解答】') || l.includes('[解答]')).length;
-                    return `
-                        <div class="sub-card p-4 flex flex-col justify-center items-center h-28" onclick="quiz.openSetup('${cat}', '${name}')">
-                            <h4 class="text-white font-bold text-sm text-center mb-1">${name}</h4>
-                            <span class="f1-font text-[10px] text-red-500">${count} Qs</span>
-                        </div>
-                    `;
-                }).join('');
+            updateSubCategories() {
+                const catSelector = document.getElementById('category-selector');
+                const subSelector = document.getElementById('sub-category-selector');
+                
+                this.currentCat = catSelector.value;
+                const subs = Object.keys(appData[this.currentCat] || {});
+                subSelector.innerHTML = subs.map(sub => `<option value="${sub}">${sub}</option>`).join('');
+                
+                this.updateSummary();
             }
 
-            openSetup(cat, sub) {
-                this.currentCat = cat;
-                this.currentSub = sub;
-                document.getElementById('setup-sector-name').innerText = cat;
-                document.getElementById('setup-sub-name').innerText = sub;
-                document.getElementById('setup-modal').classList.remove('hidden');
+            updateSummary() {
+                const sub = document.getElementById('sub-category-selector').value;
+                const rev = document.getElementById('reverse-mode').checked ? "REV" : "STD";
+                const tireStr = this.tireLimit === 999 ? "ALL" : this.tireLimit;
+                document.getElementById('strategy-summary').innerText = `Setup: ${sub} | ${tireStr} Qs | ${rev}`;
             }
-
-            closeSetup() { document.getElementById('setup-modal').classList.add('hidden'); }
 
             setTire(limit, type) {
                 this.tireLimit = limit;
                 document.querySelectorAll('.tire-btn').forEach(b => b.classList.remove('active'));
                 document.getElementById(`tire-${type}`).classList.add('active');
+                this.updateSummary();
             }
 
             startRace() {
+                this.currentCat = document.getElementById('category-selector').value;
+                this.currentSub = document.getElementById('sub-category-selector').value;
+
+                if (!this.currentCat || !this.currentSub) {
+                    alert("Telemetry Error: カテゴリが選択されていない。");
+                    return;
+                }
+
                 const raw = appData[this.currentCat][this.currentSub];
                 const parsed = raw.trim().split('\n').map(line => {
                     const m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
@@ -364,13 +395,15 @@
 
                 this.masterQuestions = parsed;
                 this.isReverse = document.getElementById('reverse-mode').checked;
+                
+                document.getElementById('quiz-title').innerText = `${this.currentCat} - ${this.currentSub}`;
+                
                 this.questions = [...parsed].sort(() => Math.random() - 0.5).slice(0, this.tireLimit);
                 this.currentIndex = 0;
                 this.missCount = 0;
                 this.isLocked = false;
                 this.startTime = Date.now();
                 
-                this.closeSetup();
                 document.getElementById('start-screen').classList.add('hidden');
                 document.getElementById('quiz-screen').classList.remove('hidden');
                 
@@ -429,8 +462,7 @@
                 
                 options.forEach(opt => {
                     const btn = document.createElement('button');
-                   // 修正後（bg-gray-800 などを撤去し、bg-transparent に変更）
-btn.className = "option-btn w-full bg-transparent text-white drop-shadow-md p-4 rounded-xl border border-white/30 text-left text-sm md:text-base font-bold transition-all hover:bg-white/10 active:scale-95";
+                    btn.className = "option-btn w-full bg-black/40 text-white drop-shadow-md p-4 rounded-xl text-left text-sm md:text-base font-bold transition-all hover:bg-white/10 active:scale-95";
                     btn.innerHTML = this.formatChem(opt);
                     btn.onclick = () => this.handleAns(opt, ans);
                     container.appendChild(btn);
@@ -456,28 +488,25 @@ btn.className = "option-btn w-full bg-transparent text-white drop-shadow-md p-4 
                         else this.finish();
                     }, 400);
                 } else {
-                this.missCount++;
-                feedback.innerHTML = '<span class="text-red-600 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">DAMAGE DETECTED</span>';
-                
-                // ★ 連続出題を防ぐためのランダム再配置ロジック
-                const q = this.questions[this.currentIndex];
-                const remainingLength = this.questions.length - 1 - this.currentIndex;
-                
-                if (remainingLength <= 2) {
-                    // 残り問題数が少なければそのまま末尾に追加
-                    this.questions.push(q);
-                } else {
-                    // 現在位置より2つ以上後の場所にランダムに挿入
-                    const insertIndex = this.currentIndex + 2 + Math.floor(Math.random() * (remainingLength - 1));
-                    this.questions.splice(insertIndex, 0, q);
-                }
+                    this.missCount++;
+                    feedback.innerHTML = '<span class="text-red-600 drop-shadow-[0_0_5px_rgba(239,68,68,0.8)]">DAMAGE DETECTED</span>';
+                    
+                    const q = this.questions[this.currentIndex];
+                    const remainingLength = this.questions.length - 1 - this.currentIndex;
+                    
+                    if (remainingLength <= 2) {
+                        this.questions.push(q);
+                    } else {
+                        const insertIndex = this.currentIndex + 2 + Math.floor(Math.random() * (remainingLength - 1));
+                        this.questions.splice(insertIndex, 0, q);
+                    }
 
-                setTimeout(() => { 
-                    feedback.innerText = ""; 
-                    this.isLocked = false; 
-                    this.showQuestion(); 
-                }, 1500);
-            }
+                    setTimeout(() => { 
+                        feedback.innerText = ""; 
+                        this.isLocked = false; 
+                        this.showQuestion(); 
+                    }, 1000); // ペナルティの停止時間を1.5秒から1.0秒に短縮
+                }
             }
 
             finish() {
@@ -518,7 +547,7 @@ btn.className = "option-btn w-full bg-transparent text-white drop-shadow-md p-4 
             }
         }
         
-        window.quiz = new ChemQuizV11();
+        window.quiz = new ChemQuizV12();
     </script>
 </body>
 </html>
