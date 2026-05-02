@@ -256,6 +256,46 @@
     display: block;
 }
 
+/* ランドスケープ（横画面）最適化：ワイド・トラック・セッティング */
+@media screen and (orientation: landscape) {
+    /* モーダルの横幅を広げる */
+    .modal-content {
+        max-width: 95% !important; /* 横幅を限界まで拡大 */
+        width: 95% !important;
+        max-height: 85vh !important; /* 縦は画面に収まるよう調整 */
+        padding: 1.5rem !important; /* 余白を詰めて有効面積を増やす */
+    }
+
+    /* タイトルの調整 */
+    #briefing-title, #track-title {
+        margin-bottom: 1rem !important;
+        padding-bottom: 0.5rem !important;
+        font-size: 1.2rem !important;
+    }
+
+    /* Track Walk（問題一覧）を横並びのグリッドにする */
+    #track-list {
+        display: grid;
+        grid-template-columns: 1fr 1fr; /* 2列表示で一画面の情報量を倍増 */
+        gap: 1rem;
+    }
+    
+    /* 解説画面も横長に合わせてフォントサイズを微調整 */
+    .explanation-content {
+        font-size: 0.9rem;
+    }
+}
+
+/* スマホの縦幅が極端に狭い場合のセーフティ */
+@media screen and (max-height: 450px) {
+    .modal-content {
+        padding: 1rem !important;
+    }
+    #briefing-title, #track-title {
+        font-size: 1rem !important;
+    }
+}
+
 
     </style>
 </head>
