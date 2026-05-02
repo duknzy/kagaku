@@ -95,6 +95,144 @@
             html { font-size: clamp(12px, 3.5vw, 16px); }
             .carbon-bg { background-attachment: scroll; min-height: 100vh; }
         }
+
+        /* --- 新規追加：テレメトリー・モーダルとボタンのスタイル --- */
+        
+        /* 1. ブリーフィングボタン */
+        #briefing-btn {
+            background: transparent !important;
+            border: 1px solid #f39c12 !important;
+            color: #f39c12 !important;
+            font-family: 'Chakra Petch', sans-serif;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            padding: 0.6rem 1.2rem;
+            border-radius: 4px;
+            transition: all 0.2s ease;
+            cursor: pointer;
+            font-size: 0.8rem;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        #briefing-btn:hover {
+            background: rgba(243, 156, 18, 0.1) !important;
+            box-shadow: 0 0 10px rgba(243, 156, 18, 0.3);
+            transform: translateY(-1px);
+        }
+
+        #briefing-btn:active {
+            transform: translateY(0);
+        }
+
+        /* 2. モーダル背景 */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.85); 
+            z-index: 200; 
+            display: none; 
+            align-items: center;
+            justify-content: center;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+        }
+
+        /* 3. モーダル本体（機密モニター風） */
+        .modal-content {
+            background: rgba(11, 14, 20, 0.95) !important;
+            border-left: 4px solid #e10600 !important;
+            border-top: 1px solid rgba(255,255,255,0.1) !important;
+            border-right: 1px solid rgba(255,255,255,0.1) !important;
+            border-bottom: 1px solid rgba(255,255,255,0.1) !important;
+            box-shadow: 0 0 40px rgba(0,0,0,0.8), inset 0 0 20px rgba(225, 6, 0, 0.05);
+            width: 90%;
+            max-width: 650px;
+            max-height: 80vh;
+            padding: 2rem;
+            border-radius: 4px;
+            position: relative;
+            overflow-y: auto;
+            color: #e2e8f0;
+        }
+        
+        .modal-content::-webkit-scrollbar { display: none; }
+        .modal-content { scrollbar-width: none; }
+
+        .close-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1.5rem;
+            font-size: 2rem;
+            cursor: pointer;
+            color: #94a3b8;
+            transition: color 0.2s;
+        }
+        
+        .close-btn:hover { color: #fff; }
+
+        /* 4. モーダル内の文字装飾 */
+        #briefing-title {
+            font-family: 'Chakra Petch', sans-serif;
+            font-style: italic;
+            color: #fff;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+            padding-bottom: 1rem;
+            margin-bottom: 1.5rem;
+            letter-spacing: 0.05em;
+            font-size: 1.5rem;
+        }
+
+        .explanation-content h3 {
+            color: #e10600;
+            font-size: 1.1rem;
+            margin-top: 1.5rem;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .explanation-content h3::before {
+            content: '▶';
+            font-size: 0.7rem;
+        }
+
+        .explanation-content p {
+            line-height: 1.6;
+            color: #cbd5e1;
+            margin: 0.8rem 0;
+        }
+
+        .explanation-content table {
+            border: none;
+            background: rgba(255,255,255,0.03);
+            margin: 1.5rem 0;
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .explanation-content th {
+            background: rgba(225, 6, 0, 0.15);
+            color: #fff;
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            padding: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .explanation-content td {
+            padding: 0.75rem;
+            border: 1px solid rgba(255,255,255,0.05);
+            text-align: center;
+        }
     </style>
 </head>
 <body class="carbon-bg text-sm md:text-base">
@@ -145,7 +283,7 @@
                         </div>
                     </div>
 
-                    <!-- テレメトリーダミー表示（F1テイスト強化） -->
+                    <!-- テレメトリーダミー表示 -->
                     <div class="grid grid-cols-2 gap-4">
                         <div class="bg-red-900/20 p-4 rounded-xl border border-red-900/30 text-center relative overflow-hidden">
                             <p class="text-[10px] text-gray-500 uppercase tracking-widest mb-1">Engine Map</p>
@@ -164,7 +302,7 @@
                     </div>
                 </div>
 
-                <!-- 右側：Race Strategy (1画面設定パネル) -->
+                <!-- 右側：Race Strategy -->
                 <div class="md:col-span-7 flex flex-col gap-4 border-t md:border-t-0 md:border-l border-gray-700 pt-6 md:pt-0 md:pl-8">
                     
                     <div class="flex items-center gap-2 mb-2">
@@ -209,6 +347,16 @@
                             </div>
                         </div>
 
+                        <!-- コース解説（ブリーフィング）ボタン -->
+                        <div class="pt-2">
+                            <button id="briefing-btn">
+                                <svg xmlns="http://www.w3.org/-2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                                </svg>
+                                Telemetry Briefing
+                            </button>
+                        </div>
+
                         <div class="grid grid-cols-1 gap-4 border-t border-gray-800 pt-4">
                              <label class="flex items-center justify-between cursor-pointer group bg-black/30 p-4 rounded-lg border border-gray-800 hover:border-gray-600 transition-colors">
                                 <span class="text-xs font-bold text-gray-300 group-hover:text-cyan-400 transition-colors flex items-center gap-2"><span class="text-cyan-400">🔄</span> REVERSE GRID (解答→問題)</span>
@@ -243,6 +391,17 @@
             <div id="accuracy-display" class="f1-font text-8xl font-bold mb-4 text-white">0%</div>
             <p id="rank-text" class="text-gray-400 font-mono mb-10">P1: MAX VERSTAPPEN</p>
             <button onclick="quiz.returnToPaddock()" class="w-full max-w-sm f1-font bg-red-600 text-white py-4 rounded-xl font-bold uppercase shadow-lg shadow-red-900/50">Return to Garage</button>
+        </div>
+    </div>
+
+    <!-- 解説モーダル -->
+    <div id="briefing-modal" class="modal">
+        <div class="modal-content">
+            <span id="close-briefing" class="close-btn">&times;</span>
+            <h2 id="briefing-title">カテゴリー名</h2>
+            <div id="briefing-text" class="explanation-content">
+                <!-- ここに data.js の内容がJSで流し込まれる -->
+            </div>
         </div>
     </div>
 
@@ -505,7 +664,7 @@
                         feedback.innerText = ""; 
                         this.isLocked = false; 
                         this.showQuestion(); 
-                    }, 1000); // ペナルティの停止時間を1.5秒から1.0秒に短縮
+                    }, 1000);
                 }
             }
 
@@ -548,6 +707,36 @@
         }
         
         window.quiz = new ChemQuizV12();
+
+        // --- コース解説（ブリーフィング）モーダルの制御 ---
+        const briefingBtn = document.getElementById('briefing-btn');
+        const briefingModal = document.getElementById('briefing-modal');
+        const closeBriefingBtn = document.getElementById('close-briefing');
+        const briefingTitle = document.getElementById('briefing-title');
+        const briefingText = document.getElementById('briefing-text');
+        const subSelector = document.getElementById('sub-category-selector');
+
+        briefingBtn.onclick = () => {
+            const selectedSub = subSelector.value;
+            
+            if (typeof explanations !== 'undefined' && explanations[selectedSub]) {
+                briefingTitle.textContent = selectedSub + " : Telemetry Briefing";
+                briefingText.innerHTML = explanations[selectedSub];
+                briefingModal.style.display = "flex"; 
+            } else {
+                alert("Telemetry Error: このセクター「" + selectedSub + "」の解説データはまだロードされていない。");
+            }
+        };
+
+        closeBriefingBtn.onclick = () => {
+            briefingModal.style.display = "none";
+        };
+
+        window.onclick = (event) => {
+            if (event.target == briefingModal) {
+                briefingModal.style.display = "none";
+            }
+        };
     </script>
 </body>
 </html>

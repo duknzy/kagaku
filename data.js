@@ -283,3 +283,589 @@ const appData = {
                 `
             }
         };
+
+// data.js の一番下に貼り付ける（既存の explanations があれば上書き）
+
+const explanations = {
+    "周期表と元素": `
+    <div class="explanation-content">
+      <h3>周期表の基本構造：典型 vs 遷移</h3>
+      <p>マシンのカテゴリー分けと同じだ。性質の「似方」を完全に見極めろ。</p>
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>典型元素（1, 2, 13〜18族）</th>
+          <th>遷移元素（3〜12族）</th>
+        </tr>
+        <tr>
+          <td>価電子の変化</td>
+          <td>原子番号順に<strong>規則的に変化</strong></td>
+          <td>原子番号が増えても<strong>ほとんど変化しない</strong></td>
+        </tr>
+        <tr>
+          <td>性質の傾向</td>
+          <td><strong>同族（縦）</strong>が似ている</td>
+          <td><strong>同周期（横）</strong>が似ている</td>
+        </tr>
+        <tr>
+          <td>構成元素</td>
+          <td>金属 ＋ 非金属</td>
+          <td><strong>すべて金属元素</strong></td>
+        </tr>
+      </table>
+      <p>※遷移元素は典型元素よりも一般に融点・沸点が高い。</p>
+
+      
+
+      <h3>両性金属：酸・塩基の両方を攻める二刀流</h3>
+      <p>周期表の「金属と非金属の境界付近」に位置する特別なグループだ。</p>
+      <ul>
+        <li><strong>該当元素:</strong> <strong>アルミニウム Al、亜鉛 Zn、スズ Sn、鉛 Pb</strong></li>
+        <li><strong>定義:</strong> 酸とも塩基とも反応して塩を生じる金属。</li>
+        <li><strong>両性化合物:</strong> Al(OH)<sub>3</sub> など、これらの金属の化合物も酸・塩基の両方と反応する。</li>
+      </ul>
+
+      <h3>物理的性能と状態の勝負どころ</h3>
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>勝負どころのデータ</th>
+        </tr>
+        <tr>
+          <td><strong>最高融点の金属</strong></td>
+          <td><strong>タングステン W</strong>（白熱電球のフィラメントに使用）</td>
+        </tr>
+        <tr>
+          <td><strong>常温常圧で気体</strong></td>
+          <td>H、N、O、F、Cl（第5周期までの典型元素、貴ガス除く）</td>
+        </tr>
+      </table>
+
+      <h3>科学史のタイムライン：発見の順序</h3>
+      <p>正しい順序でグリッドに並べろ。周期律は最後だ。</p>
+      <ol>
+        <li><strong>ボイルの法則</strong></li>
+        <li><strong>シャルルの法則</strong></li>
+        <li><strong>ドルトンの分圧の法則</strong></li>
+        <li><strong>アボガドロの法則</strong></li>
+        <li><strong>周期律の発見</strong></li>
+      </ol>
+
+      <h3>イオン化の傾向</h3>
+      <ul>
+        <li><strong>陽性元素:</strong> 電子を失って<strong>陽イオン</strong>になりやすい。</li>
+        <li><strong>陰性元素:</strong> 電子を得て<strong>陰イオン</strong>になりやすい。</li>
+      </ul>
+    </div>
+  `,
+    "ハロゲンと化合物": `
+    <div class="explanation-content">
+      <h3>ハロゲン化水素の序列：ここがオーバーテイクポイントだ</h3>
+      <p>酸の強さと沸点の高さ、この2つの序列の「ねじれ」が最大の勝負どころだ。</p>
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>序列（左が上位）</th>
+          <th>重要ポイント</th>
+        </tr>
+        <tr>
+          <td>酸の強さ</td>
+          <td>HI ＞ HBr ＞ HCl ＞ <strong>HF</strong></td>
+          <td><strong>HFのみが弱酸</strong>。他は強酸だ。</td>
+        </tr>
+        <tr>
+          <td>沸点の高さ</td>
+          <td><strong>HF</strong> ＞ HI ＞ HBr ＞ HCl</td>
+          <td>HFは約20℃で最高。理由は<strong>水素結合</strong>だ。</td>
+        </tr>
+      </table>
+
+      <h3>気体の発生：揮発性酸の追い出し反応</h3>
+      <p>「不揮発性の酸（濃硫酸）」を使って「揮発性の酸」をピットアウトさせる。反応条件の<strong>加熱</strong>を忘れるな。</p>
+      <ul>
+        <li><strong>塩化水素 HCl:</strong> NaCl + H<sub>2</sub>SO<sub>4</sub> → NaHSO<sub>4</sub> + HCl
+          <br>水に溶けやすく、空気より重い（<strong>下方置換</strong>）。アンモニアと反応して<strong>塩化アンモニウム NH<sub>4</sub>Cl</strong> の白煙を生じる。</li>
+        <li><strong>フッ化水素 HF:</strong> CaF<sub>2</sub>（ホタル石） + H<sub>2</sub>SO<sub>4</sub> → CaSO<sub>4</sub> + 2HF
+          <br>20℃以下では液体。<strong>ガラス（SiO<sub>2</sub>）を溶かす</strong>ため、<strong>ポリエチレン容器</strong>で保管する。</li>
+      </ul>
+
+      <h3>ガラスを溶かす反応（エッチング）</h3>
+      <p>HFがSiO<sub>2</sub>を攻め落とす反応式は2パターンある。どちらも書けるようにしておけ。</p>
+      <ul>
+        <li><strong>ヘキサフルオロケイ酸生成:</strong> SiO<sub>2</sub> + 6HF → H<sub>2</sub>SiF<sub>6</sub> + 2H<sub>2</sub>O</li>
+        <li><strong>四フッ化ケイ素生成:</strong> SiO<sub>2</sub> + 4HF → SiF<sub>4</sub> + 2H<sub>2</sub>O</li>
+      </ul>
+
+      <h3>オキソ酸とその塩：酸化剤の特性</h3>
+      <ul>
+        <li><strong>塩素酸カリウム KClO<sub>3</sub>:</strong> 酸化マンガン(IV)を触媒に加熱して<strong>酸素 O<sub>2</sub></strong> を発生させる。マッチの頭薬などの<strong>助燃剤</strong>に使われる。
+          <br>2KClO<sub>3</sub> → 2KCl + 3O<sub>2</sub></li>
+        <li><strong>次亜塩素酸ナトリウム NaClO:</strong> 強い酸化・漂白・殺菌作用。塩酸を加えると<strong>塩素 Cl<sub>2</sub></strong> が発生する「まぜるな危険」の反応だ。
+          <br>NaClO + 2HCl → NaCl + H<sub>2</sub>O + Cl<sub>2</sub></li>
+        <li><strong>さらし粉:</strong> CaCl(ClO)・H<sub>2</sub>O。高度さらし粉は Ca(ClO)<sub>2</sub>・2H<sub>2</sub>O。</li>
+      </ul>
+
+      <h3>ハロゲン化銀：色彩のグリッド</h3>
+      <p>沈殿の色はコンマ数秒で判断しろ。<strong>AgFだけが水に溶ける</strong>という事実が、勝負を分ける最大の例外だ。</p>
+      <table>
+        <tr>
+          <th>物質名</th>
+          <th>化学式</th>
+          <th>色</th>
+          <th>特性</th>
+        </tr>
+        <tr>
+          <td>フッ化銀</td>
+          <td>AgF</td>
+          <td>黄色</td>
+          <td><strong>水に溶ける（沈殿しない）</strong></td>
+        </tr>
+        <tr>
+          <td>塩化銀</td>
+          <td>AgCl</td>
+          <td><strong>白色</strong></td>
+          <td>不溶・<strong>感光性</strong>（光で黒化）</td>
+        </tr>
+        <tr>
+          <td>臭化銀</td>
+          <td>AgBr</td>
+          <td><strong>淡黄色</strong></td>
+          <td>不溶・感光性</td>
+        </tr>
+        <tr>
+          <td>ヨウ化銀</td>
+          <td>AgI</td>
+          <td><strong>黄色</strong></td>
+          <td>不溶・感光性</td>
+        </tr>
+      </table>
+    </div>
+  `,
+
+  "周期表と元素2": `
+    <div class="explanation-content">
+      <h3>周期表のトレンド：原子のポテンシャルを見極めろ</h3>
+      <p>原子番号の変化に伴う性質のシフトは、テストの得点源だ。このライン取りを体に叩き込め。</p>
+      <table>
+        <tr>
+          <th>方向</th>
+          <th>原子半径</th>
+          <th>性質の強まり</th>
+        </tr>
+        <tr>
+          <td><strong>右側（同周期）</strong></td>
+          <td><strong>小さくなる</strong></td>
+          <td><strong>陰性</strong>が強くなる（核の正電荷が増え、電子を引く力が強まるため）</td>
+        </tr>
+        <tr>
+          <td><strong>下側（同族）</strong></td>
+          <td><strong>大きくなる</strong></td>
+          <td><strong>陽性</strong>が強くなる</td>
+        </tr>
+      </table>
+      <p>※典型元素において、<strong>陽性が最強なのは左下</strong>、<strong>陰性が最強なのは右上（18族除く）</strong>だ。</p>
+
+      <h3>元素の分類：マシンの構成要素</h3>
+      <ul>
+        <li><strong>金属元素:</strong> 周期表の<strong>左下〜中央</strong>に位置する。金属結合による金属結晶を作り、<strong>遷移元素はすべてこれに該当</strong>する。</li>
+        <li><strong>非金属元素:</strong> 周期表の<strong>右上</strong>に位置する。共有結合分子や共有結合結晶（CやSi）を作る。</li>
+        <li><strong>半導体:</strong> <strong>ケイ素 Si</strong> や <strong>ゲルマニウム Ge</strong> は、金属と非金属の両方の性質を示すスペシャリストだ。</li>
+      </ul>
+
+      <h3>物質の状態：コンディション別データ</h3>
+      <p>常温・常圧（25℃, 1.013×10<sup>5</sup>Pa）での状態は、ひっかけ問題の定番だ。特に液体の2つは絶対に見逃すな。</p>
+      <table>
+        <tr>
+          <th>状態</th>
+          <th>分類</th>
+          <th>該当する物質</th>
+        </tr>
+        <tr>
+          <td><strong>液体</strong></td>
+          <td>金属元素</td>
+          <td><strong>水銀 Hg</strong></td>
+        </tr>
+        <tr>
+          <td><strong>液体</strong></td>
+          <td>非金属（二原子分子）</td>
+          <td><strong>臭素 Br<sub>2</sub></strong></td>
+        </tr>
+        <tr>
+          <td>固体</td>
+          <td>非金属（二原子分子）</td>
+          <td><strong>ヨウ素 I<sub>2</sub></strong></td>
+        </tr>
+        <tr>
+          <td>固体</td>
+          <td>共有結合結晶</td>
+          <td><strong>炭素 C、ケイ素 Si</strong>（融点が極めて高い！）</td>
+        </tr>
+      </table>
+
+      <h3>分子の構成：ユニットの形</h3>
+      <ul>
+        <li><strong>単原子分子:</strong> 18族の<strong>貴ガス</strong>（He、Ne、Arなど）。安定していて1個で動く。</li>
+        <li><strong>二原子分子:</strong> H<sub>2</sub>、N<sub>2</sub>、O<sub>2</sub>、Cl<sub>2</sub>など。ほとんどが気体だが、Br<sub>2</sub>（液）とI<sub>2</sub>（固）に注意しろ。</li>
+        <li><strong>多原子分子:</strong> 硫黄 S や リン P などが該当する。</li>
+      </ul>
+    </div>
+  `,
+  "酸素とオゾン": `
+    <div class="explanation-content">
+      <h3>酸素 O<sub>2</sub>：地殻内シェアNo.1の安定マシン</h3>
+      <p>地殻中に最も多く含まれる元素（質量比）であり、生命と燃焼の基本だ。</p>
+      <ul>
+        <li><strong>調製法1:</strong> 過酸化水素 H<sub>2</sub>O<sub>2</sub> に触媒 <strong>MnO<sub>2</sub></strong> を加える（<strong>加熱不要</strong>）。
+          <br>2H<sub>2</sub>O<sub>2</sub> → 2H<sub>2</sub>O + O<sub>2</sub></li>
+        <li><strong>調製法2:</strong> 塩素酸カリウム KClO<sub>3</sub> に触媒 MnO<sub>2</sub> を加え<strong>加熱</strong>する。
+          <br>2KClO<sub>3</sub> → 2KCl + 3O<sub>2</sub></li>
+        <li><strong>工業的製法:</strong> <strong>液体空気</strong>を分留して手に入れる。</li>
+        <li><strong>捕集法:</strong> 水に溶けにくいため、<strong>水上置換</strong>で確実に回収しろ。</li>
+      </ul>
+
+      <h3>過酸化水素 H<sub>2</sub>O<sub>2</sub> のスペック</h3>
+      <p>無色で水よりわずかに<strong>粘性</strong>がある液体だ。3％水溶液は<strong>オキシドール</strong>と呼ばれ、殺菌消毒剤としてピット（家庭）でも活躍する。</p>
+
+      <h3>酸素とオゾンの性能比較（同素体）</h3>
+      <p>この2つの「差」を突く問題が多発する。コンマ数秒で判断しろ。</p>
+      <table>
+        <tr>
+          <th>項目</th>
+          <th>酸素 O<sub>2</sub></th>
+          <th>オゾン O<sub>3</sub></th>
+        </tr>
+        <tr>
+          <td>色・臭い</td>
+          <td>無色・無臭</td>
+          <td><strong>淡青色・特異臭</strong></td>
+        </tr>
+        <tr>
+          <td>分子の重さ</td>
+          <td>軽い（分子量32）</td>
+          <td><strong>重い</strong>（分子量48）</td>
+        </tr>
+        <tr>
+          <td>分子の形</td>
+          <td><strong>直線形</strong></td>
+          <td><strong>折れ線形</strong></td>
+        </tr>
+        <tr>
+          <td>毒性・作用</td>
+          <td>助燃性</td>
+          <td><strong>有毒・強い酸化作用</strong></td>
+        </tr>
+      </table>
+
+      <h3>オゾン O<sub>3</sub>：高エネルギーの攻撃的マシン</h3>
+      <p>酸素中で<strong>無声放電</strong>を行うか、強い<strong>紫外線</strong>を当てると生成される。
+      <br>3O<sub>2</sub> ⇄ 2O<sub>3</sub></p>
+      <ul>
+        <li><strong>主な用途:</strong> 殺菌、空気の浄化、衣類の漂白。</li>
+        <li><strong>検出反応:</strong> 湿らせた<strong>ヨウ化カリウムデンプン紙</strong>を<strong>青紫色</strong>に変える。
+          <br>※塩素 Cl<sub>2</sub> も同様の反応を示すから注意しろ。</li>
+        <li><strong>化学反応式:</strong> 2KI + O<sub>3</sub> + H<sub>2</sub>O → 2KOH + I<sub>2</sub> + O<sub>2</sub>
+          <br>（ヨウ素 I<sub>2</sub> が遊離することで色が変化する仕組みだ）</li>
+      </ul>
+    </div>
+  `,
+ "水素と貴ガス": `
+    <div class="explanation-content">
+      <h3>水素 H<sub>2</sub>：最軽量の還元マシン</h3>
+      <p>全物質の中で密度が最も小さく、無色・無臭の気体だ。</p>
+      <ul>
+        <li><strong>ラボでの調製:</strong> 亜鉛 Zn や鉄 Fe などの金属に希塩酸や希硫酸を加える。
+          <br>Zn + H<sub>2</sub>SO<sub>4</sub> → ZnSO<sub>4</sub> + H<sub>2</sub>（加熱不要）</li>
+        <li><strong>工業的製法:</strong> ニッケル触媒を用い、メタン CH<sub>4</sub> と水を高温で反応させる。
+          <br>CH<sub>4</sub> + H<sub>2</sub>O → CO + 3H<sub>2</sub></li>
+        <li><strong>捕集法:</strong> 純度の高いものは<strong>水上置換</strong>で回収しろ。</li>
+        <li><strong>勝負どころの反応:</strong> 酸素 O<sub>2</sub> との混合気体に点火すると爆発的に反応して水を生じる。また、高温で酸化物から酸素を奪う<strong>還元剤</strong>としても活躍する。</li>
+        <li><strong>水素化物イオン:</strong> 陽性の強い金属（Na, Ca）と反応すると、電子を受け取り <strong>H<sup>-</sup></strong> となる。
+          <br>例：水素化ナトリウム NaH、水素化カルシウム CaH<sub>2</sub></li>
+      </ul>
+
+      <h3>水素化合物の性質と形状</h3>
+      <p>周期表における位置で、酸性・塩基性のトレンドを見極めろ。</p>
+      <table>
+        <tr>
+          <th>方向</th>
+          <th>性質の傾向</th>
+          <th>該当物質</th>
+        </tr>
+        <tr>
+          <td><strong>右に行くほど</strong></td>
+          <td><strong>酸性</strong>が強くなる</td>
+          <td>HF（弱酸）、H<sub>2</sub>S（弱酸）、HCl（強酸）</td>
+        </tr>
+        <tr>
+          <td><strong>左に行くほど</strong></td>
+          <td><strong>塩基性</strong>が強くなる</td>
+          <td>NH<sub>3</sub>（弱塩基）</td>
+        </tr>
+      </table>
+
+      
+      
+      <ul>
+        <li><strong>三角錐形:</strong> アンモニア NH<sub>3</sub>、ホスフィン PH<sub>3</sub></li>
+        <li><strong>折れ線形:</strong> 水 H<sub>2</sub>O、硫化水素 H<sub>2</sub>S</li>
+        <li><strong>直線形:</strong> フッ化水素 HF、塩化水素 HCl</li>
+      </ul>
+
+      <h3>貴ガス：第18族のスペシャリスト</h3>
+      <p>液体空気の分留で得られ、無色・無臭で極めて安定だ。すべて<strong>単原子分子</strong>として存在することを忘れるな。</p>
+      <table>
+        <tr>
+          <th>元素</th>
+          <th>勝負どころのデータ</th>
+        </tr>
+        <tr>
+          <td>ヘリウム <strong>He</strong></td>
+          <td>水素の次に軽く、不燃性。気球の浮揚ガスに使用。最外殻電子数は2。</td>
+        </tr>
+        <tr>
+          <td>ネオン <strong>Ne</strong></td>
+          <td>放電で<strong>橙赤色</strong>に発光。ネオンサインに使用。</td>
+        </tr>
+        <tr>
+          <td>アルゴン <strong>Ar</strong></td>
+          <td>空気中に3番目に多く含まれる。電球や放電管に使用。</td>
+        </tr>
+      </table>
+      <p>※貴ガスの<strong>価電子数はすべて 0</strong> だ。最外殻電子数（Heは2、他は8）との違いに注意しろ。</p>
+    </div>
+  `,
+  "オキソ酸": `
+    <div class="explanation-content">
+      <h3>酸化物の分類：金属か非金属かで見極めろ</h3>
+      <p>元素の種類によって、水や酸・塩基との反応コースが完全に分かれる。</p>
+      <table>
+        <tr>
+          <th>名称</th>
+          <th>元素の種類</th>
+          <th>主な反応・特徴</th>
+        </tr>
+        <tr>
+          <td><strong>塩基性酸化物</strong></td>
+          <td>金属元素</td>
+          <td>水と反応して<strong>水酸化物（塩基）</strong>を生じ、酸と反応して<strong>塩</strong>を生じる。<br>（例）Na<sub>2</sub>O + H<sub>2</sub>O → 2NaOH</td>
+        </tr>
+        <tr>
+          <td><strong>酸性酸化物</strong></td>
+          <td>非金属元素</td>
+          <td>水と反応して<strong>オキソ酸</strong>を生じ、塩基と反応して<strong>塩</strong>を生じる。<br>（例）SO<sub>3</sub> + H<sub>2</sub>O → H<sub>2</sub>SO<sub>4</sub></td>
+        </tr>
+        <tr>
+          <td><strong>両性酸化物</strong></td>
+          <td>金属元素</td>
+          <td>水には溶けないが、<strong>酸とも塩基とも反応</strong>して塩を生じる。<br>（例）<strong>Al<sub>2</sub>O<sub>3</sub></strong>、<strong>ZnO</strong></td>
+        </tr>
+      </table>
+
+      <h3>オキソ酸の強さ：序列を叩き込め</h3>
+      <p>分子中に酸素原子を含む酸（オキソ酸）には、酸性の強さを決める明確なルールがある。</p>
+      <ul>
+        <li><strong>同一元素のオキソ酸:</strong> 中心原子に結合している<strong>「水素と結合していない酸素原子」</strong>が多いほど、酸性が強くなる。
+          <br>（例）<strong>H<sub>2</sub>SO<sub>4</sub>（硫酸）</strong> ＞ H<sub>2</sub>SO<sub>3</sub>（亜硫酸）
+          <br>（例）<strong>HNO<sub>3</sub>（硝酸）</strong> ＞ HNO<sub>2</sub>（亜硝酸）</li>
+        <li><strong>同周期元素のオキソ酸:</strong> 周期表の<strong>右側</strong>の元素ほど酸性が強くなる。
+          <br><strong>H<sub>2</sub>SiO<sub>3</sub> ＜ H<sub>3</sub>PO<sub>4</sub> ＜ H<sub>2</sub>SO<sub>4</sub> ＜ HClO<sub>4</sub></strong></li>
+      </ul>
+
+      <h3>塩素のオキソ酸：酸化数と強弱のグリッド</h3>
+      <p>塩素のオキソ酸シリーズは、酸化数が増えるほど酸性が強まる。この序列は絶対だ。</p>
+      <table>
+        <tr>
+          <th>名称</th>
+          <th>化学式</th>
+          <th>塩素の酸化数</th>
+          <th>酸性の強さ</th>
+        </tr>
+        <tr>
+          <td><strong>過塩素酸</strong></td>
+          <td>HClO<sub>4</sub></td>
+          <td>+7</td>
+          <td><strong>最強</strong></td>
+        </tr>
+        <tr>
+          <td>塩素酸</td>
+          <td>HClO<sub>3</sub></td>
+          <td>+5</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>亜塩素酸</td>
+          <td>HClO<sub>2</sub></td>
+          <td>+3</td>
+          <td>↓</td>
+        </tr>
+        <tr>
+          <td><strong>次亜塩素酸</strong></td>
+          <td>HClO</td>
+          <td>+1</td>
+          <td><strong>最弱</strong></td>
+        </tr>
+      </table>
+    </div>
+  `,
+  "ハロゲンの性質": `
+    <div class="explanation-content">
+      <h3>17族ハロゲン：最強の「酸化力」を誇るトップランナー</h3>
+      <p>同一周期で最も陰性が強く、最外殻電子（価電子）は7個だ。1個の電子を奪い、1価の陰イオンになりやすい性質がマシンの出力そのものだ。</p>
+
+      <h3>色・状態・沸点の色彩データ</h3>
+      <p>原子番号が大きくなるほど分子が重くなり、沸点・融点が上昇する。状態と色の変化をコンマ数秒で判断しろ。</p>
+      
+      <table>
+        <tr>
+          <th>物質</th>
+          <th>色</th>
+          <th>状態（常温）</th>
+          <th>沸点・融点</th>
+        </tr>
+        <tr>
+          <td>フッ素 F<sub>2</sub></td>
+          <td>淡黄色</td>
+          <td>気体</td>
+          <td>最低</td>
+        </tr>
+        <tr>
+          <td>塩素 Cl<sub>2</sub></td>
+          <td>黄緑色</td>
+          <td>気体</td>
+          <td>↑</td>
+        </tr>
+        <tr>
+          <td>臭素 Br<sub>2</sub></td>
+          <td>赤褐色</td>
+          <td><strong>液体</strong></td>
+          <td>↓</td>
+        </tr>
+        <tr>
+          <td>ヨウ素 I<sub>2</sub></td>
+          <td>黒紫色</td>
+          <td><strong>固体</strong></td>
+          <td>最高</td>
+        </tr>
+      </table>
+      <p>※すべてのハロゲン単体は、共通して強い<strong>刺激臭</strong>を持つ。</p>
+
+      <h3>酸化力の序列：オーバーテイクの絶対法則</h3>
+      <p>原子半径が小さいほど電子を引きつけやすく、<strong>酸化力</strong>が強くなる。この序列はテストの超頻出ポイントだ。</p>
+      <ul>
+        <li><strong>酸化力の強さ:</strong> <strong>F<sub>2</sub> ＞ O<sub>3</sub> ＞ Cl<sub>2</sub> ＞ Br<sub>2</sub> ＞ I<sub>2</sub></strong></li>
+        <li><strong>還元力（イオン）の強さ:</strong> <strong>I<sup>-</sup> ＞ Br<sup>-</sup> ＞ Cl<sup>-</sup> ＞ F<sup>-</sup></strong>（酸化力と完全に逆転する）</li>
+      </ul>
+
+      <h3>反応性の減衰：水素と水へのアタック</h3>
+      <p>原子番号が増えるにつれ、反応の「キレ」が鈍くなっていく様子を叩き込め。</p>
+      <table>
+        <tr>
+          <th>物質</th>
+          <th>水素 H<sub>2</sub> との反応</th>
+          <th>水 H<sub>2</sub>O との反応</th>
+        </tr>
+        <tr>
+          <td>F<sub>2</sub></td>
+          <td><strong>冷暗所でも爆発的</strong></td>
+          <td>激しく反応、<strong>酸素 O<sub>2</sub></strong> を発生</td>
+        </tr>
+        <tr>
+          <td>Cl<sub>2</sub></td>
+          <td>光により爆発的</td>
+          <td>一部反応、<strong>HCl・HClO（次亜塩素酸）</strong>生成</td>
+        </tr>
+        <tr>
+          <td>Br<sub>2</sub></td>
+          <td>加熱・触媒が必要</td>
+          <td>一部反応、HBr・HBrO 生成</td>
+        </tr>
+        <tr>
+          <td>I<sub>2</sub></td>
+          <td>加熱・触媒でわずかに反応</td>
+          <td>ほとんど溶けない</td>
+        </tr>
+      </table>
+
+      <h3>勝負を分ける「置換反応」とひっかけ</h3>
+      <ul>
+        <li><strong>置換反応:</strong> 酸化力の強いものが、弱いもののイオンから電子を奪い、単体を遊離させる。
+          <br>（例）Cl<sub>2</sub> + 2KBr → 2KCl + Br<sub>2</sub>（Cl<sub>2</sub>はBr<sub>2</sub>より強いため成立）
+          <br>（例）Br<sub>2</sub> + 2KCl → <strong>反応しない</strong>（Br<sub>2</sub>はCl<sub>2</sub>より弱いため、オーバーテイク不可）</li>
+        <li><strong>電子親和力 vs 酸化力:</strong> 原子1個が電子を得るエネルギー（電子親和力）は <strong>Cl ＞ F</strong> だが、分子としての酸化力は <strong>F<sub>2</sub> ＞ Cl<sub>2</sub></strong> だ。ここがテストの落とし穴だ。</li>
+      </ul>
+    </div>
+  `,
+ "ハロゲンの性質2": `
+    <div class="explanation-content">
+      <h3>塩素 Cl<sub>2</sub> の発生：ピット作業（条件）の使い分け</h3>
+      <p>塩素を得るための反応は、<strong>加熱の有無</strong>が最大の分岐点だ。ここでミスをすればタイムロス（失点）に直結する。</p>
+      <table>
+        <tr>
+          <th>反応物</th>
+          <th>条件</th>
+          <th>化学反応式</th>
+        </tr>
+        <tr>
+          <td>酸化マンガン(IV) ＋ <strong>濃塩酸</strong></td>
+          <td><strong>加熱必要</strong></td>
+          <td>MnO<sub>2</sub> + 4HCl → MnCl<sub>2</sub> + 2H<sub>2</sub>O + Cl<sub>2</sub></td>
+        </tr>
+        <tr>
+          <td>高度さらし粉 ＋ 希塩酸</td>
+          <td>加熱なし</td>
+          <td>Ca(ClO)<sub>2</sub>・2H<sub>2</sub>O + 4HCl → CaCl<sub>2</sub> + 4H<sub>2</sub>O + 2Cl<sub>2</sub></td>
+        </tr>
+        <tr>
+          <td>さらし粉 ＋ 希塩酸</td>
+          <td>加熱なし</td>
+          <td>CaCl(ClO)・H<sub>2</sub>O + 2HCl → CaCl<sub>2</sub> + 2H<sub>2</sub>O + Cl<sub>2</sub></td>
+        </tr>
+      </table>
+      <p>※酸化マンガン(IV) MnO<sub>2</sub> は、この反応では<strong>酸化剤</strong>として機能する。</p>
+      
+
+      <h3>塩素 Cl<sub>2</sub> の性質と「次亜塩素酸」</h3>
+      <p>有毒で空気より重い（<strong>下方置換</strong>で捕集）気体だ。水に溶けた時の挙動が勝負を分けるぞ。</p>
+      <ul>
+        <li><strong>水との反応:</strong> 一部が反応して塩化水素 HCl と <strong>次亜塩素酸 HClO</strong> を生じる。
+          <br>Cl<sub>2</sub> + H<sub>2</sub>O ⇄ HCl + HClO</li>
+        <li><strong>次亜塩素酸 HClO:</strong> 弱酸だが、強い<strong>酸化作用</strong>を持つ。そのため、塩素水は漂白剤や消毒剤として利用される。</li>
+        <li><strong>構造のヒント:</strong> HClO と書くが、構造に合わせると <strong>HOCl</strong> と表記されることもある。</li>
+        <li><strong>検出:</strong> 水で湿らせた青色リトマス紙を<strong>漂白</strong>する。</li>
+      </ul>
+
+      <h3>臭素 Br<sub>2</sub> と ヨウ素 I<sub>2</sub> の個別スペック</h3>
+      <table>
+        <tr>
+          <th>物質</th>
+          <th>常温の状態</th>
+          <th>溶媒への溶解性</th>
+        </tr>
+        <tr>
+          <td><strong>臭素 Br<sub>2</sub></strong></td>
+          <td><strong>赤褐色</strong>の液体（有毒な蒸気）</td>
+          <td>水に少し溶け、有機溶媒（ヘキサン等）によく溶ける。</td>
+        </tr>
+        <tr>
+          <td><strong>ヨウ素 I<sub>2</sub></strong></td>
+          <td><strong>黒紫色</strong>の固体（<strong>昇華性</strong>あり）</td>
+          <td>水にほとんど溶けず、有機溶媒や<strong>ヨウ化カリウム水溶液</strong>によく溶ける。</td>
+        </tr>
+      </table>
+
+      <h3>ヨウ素 I<sub>2</sub> の特殊な反応ルート</h3>
+      <p>ヨウ素は「分子結晶」であり、弱い力で配列しているため昇華しやすい。</p>
+      
+      <ul>
+        <li><strong>ヨウ化カリウム水溶液への溶解:</strong> <strong>三ヨウ化物イオン I<sub>3</sub><sup>-</sup></strong> を生じて褐色になる。
+          <br>I<sub>2</sub> + I<sup>-</sup> → I<sub>3</sub><sup>-</sup></li>
+        <li><strong>ヨウ素デンプン反応:</strong> デンプン溶液と反応して<strong>青紫色</strong>を示す。</li>
+        <li><strong>用途:</strong> 塩素より酸化力は弱いが、殺菌・消毒液（うがい薬）などに利用される。</li>
+      </ul>
+
+      <h3>最強のアタッカー：フッ素 F<sub>2</sub></h3>
+      <p>水と激しく反応して<strong>酸素 O<sub>2</sub></strong> を発生させる唯一のハロゲンだ。
+        <br>2F<sub>2</sub> + 2H<sub>2</sub>O → 4HF + O<sub>2</sub></p>
+    </div>
+  `
+};
