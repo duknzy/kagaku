@@ -233,6 +233,30 @@
             border: 1px solid rgba(255,255,255,0.05);
             text-align: center;
         }
+
+        /* 問題一覧のスタイル */
+.track-item {
+    background: rgba(255, 255, 255, 0.05);
+    padding: 1rem;
+    border-radius: 8px;
+    border-left: 3px solid #06b6d4; /* シアンカラー */
+}
+
+.track-q {
+    color: #94a3b8;
+    font-size: 0.8rem;
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.track-a {
+    color: #fff;
+    font-weight: 700;
+    font-size: 1rem;
+    display: block;
+}
+
+
     </style>
 </head>
 <body class="carbon-bg text-sm md:text-base">
@@ -357,6 +381,15 @@
                             </button>
                         </div>
 
+                        <div class="pt-2">
+    <button id="track-walk-btn" class="w-full f1-font bg-transparent border border-cyan-500 text-cyan-500 font-bold py-2 rounded-lg hover:bg-cyan-500/10 transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-2">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        Track Walk (Problem List)
+    </button>
+</div>
+
                         <div class="grid grid-cols-1 gap-4 border-t border-gray-800 pt-4">
                              <label class="flex items-center justify-between cursor-pointer group bg-black/30 p-4 rounded-lg border border-gray-800 hover:border-gray-600 transition-colors">
                                 <span class="text-xs font-bold text-gray-300 group-hover:text-cyan-400 transition-colors flex items-center gap-2"><span class="text-cyan-400">🔄</span> REVERSE GRID (解答→問題)</span>
@@ -404,6 +437,16 @@
             </div>
         </div>
     </div>
+
+    <div id="track-modal" class="modal">
+    <div class="modal-content border-cyan-500">
+        <span id="close-track" class="close-btn">&times;</span>
+        <h2 id="track-title" class="f1-font italic text-cyan-400">TRACK MAP</h2>
+        <div id="track-list" class="space-y-4 mt-6">
+            <!-- ここに問題と解答が流し込まれる -->
+        </div>
+    </div>
+</div>
 
     <script src="data.js"></script>
 
@@ -737,6 +780,49 @@
                 briefingModal.style.display = "none";
             }
         };
+        // index.html の末尾、briefingBtn の処理の下あたりに追加
+
+const trackWalkBtn = document.getElementById('track-walk-btn');
+const trackModal = document.getElementById('track-modal');
+const closeTrackBtn = document.getElementById('close-track');
+const trackList = document.getElementById('track-list');
+const trackTitle = document.getElementById('track-title');
+
+trackWalkBtn.onclick = () => {
+    const cat = document.getElementById('category-selector').value;
+    const sub = document.getElementById('sub-category-selector').value;
+    
+    if (appData[cat] && appData[cat][sub]) {
+        trackTitle.textContent = `${sub} : Track Walk`;
+        const rawData = appData[cat][sub];
+        
+        // 文字列を1行ずつ分解してHTML化[cite: 2]
+        const lines = rawData.trim().split('\n');
+        trackList.innerHTML = lines.map(line => {
+            const match = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
+            if (!match) return "";
+            
+            // クイズクラスの formatChem メソッドを再利用して化学式を綺麗にする
+            const qText = window.quiz.formatChem(match[1].trim());
+            const aText = window.quiz.formatChem(match[2].trim());
+            
+            return `
+                <div class="track-item">
+                    <span class="track-q">QUESTION</span>
+                    <div class="mb-2 text-gray-200">${qText}</div>
+                    <span class="track-q">ANSWER</span>
+                    <div class="track-a text-cyan-400">${aText}</div>
+                </div>
+            `;
+        }).join('');
+        
+        trackModal.style.display = "flex";
+    }
+};
+
+closeTrackBtn.onclick = () => { trackModal.style.display = "none"; };
+
+
     </script>
 </body>
 </html>
