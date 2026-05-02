@@ -255,47 +255,46 @@
     font-size: 1rem;
     display: block;
 }
-
-/* ランドスケープ（横画面）最適化：ワイド・トラック・セッティング */
+/* ランドスケープ（横画面）最適化：セミワイド・セッティング */
 @media screen and (orientation: landscape) {
-    /* モーダルの横幅を広げる */
+    /* モーダルの横幅を85%に調整（一回りコンパクトに） */
     .modal-content {
-        max-width: 95% !important; /* 横幅を限界まで拡大 */
-        width: 95% !important;
-        max-height: 85vh !important; /* 縦は画面に収まるよう調整 */
-        padding: 1.5rem !important; /* 余白を詰めて有効面積を増やす */
+        max-width: 85% !important; 
+        width: 85% !important;
+        max-height: 88vh !important; /* 少し縦を伸ばしてバランスを取る */
+        padding: 1.5rem !important;
     }
 
-    /* タイトルの調整 */
+    /* タイトルの装飾 */
     #briefing-title, #track-title {
-        margin-bottom: 1rem !important;
-        padding-bottom: 0.5rem !important;
-        font-size: 1.2rem !important;
+        margin-bottom: 1.2rem !important;
+        padding-bottom: 0.6rem !important;
+        font-size: 1.3rem !important;
     }
 
-    /* Track Walk（問題一覧）を横並びのグリッドにする */
+    /* Track Walk（問題一覧）は効率的な2列グリッドを維持 */
     #track-list {
         display: grid;
-        grid-template-columns: 1fr 1fr; /* 2列表示で一画面の情報量を倍増 */
+        grid-template-columns: 1fr 1fr; 
         gap: 1rem;
     }
     
-    /* 解説画面も横長に合わせてフォントサイズを微調整 */
     .explanation-content {
-        font-size: 0.9rem;
+        font-size: 0.95rem;
     }
 }
 
-/* スマホの縦幅が極端に狭い場合のセーフティ */
+/* 極端に高さが低いスマホ用（さらに余白をタイトに） */
 @media screen and (max-height: 450px) {
     .modal-content {
         padding: 1rem !important;
+        max-height: 92vh !important;
     }
     #briefing-title, #track-title {
-        font-size: 1rem !important;
+        font-size: 1.1rem !important;
+        margin-bottom: 0.8rem !important;
     }
 }
-
 
     </style>
 </head>
