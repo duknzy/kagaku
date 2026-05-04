@@ -2,7 +2,7 @@
 
 const appConfig = {
     wallpaperUrl: "./F1.jpg",  // ここに背景にしたい画像のファイル名を入れる（例：F1.jpg）
-    appIconUrl: "./icon.jpg"   // ここにアイコン画像のファイル名を入れる
+    appIconUrl: "./icon.png"   // ここにアイコン画像のファイル名を入れる
 };
 
 const appData = {
