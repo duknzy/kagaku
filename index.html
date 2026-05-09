@@ -628,8 +628,21 @@
 
                 const raw = appData[this.currentCat][this.currentSub];
                 const parsed = raw.trim().split('\n').map(line => {
-                    const m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
-                    return m ? { q: m[1].trim(), a: m[2].trim() } : null;
+                    // パターン1: 【ダミー】が設定されている場合
+                    let m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*?)(?:【ダミー】|\[ダミー\])\s*(.*)$/);
+                    if (m) {
+                        return {
+                            q: m[1].trim(),
+                            a: m[2].trim(),
+                            dummies: m[3].split(/[|｜,、]/).map(d => d.trim()).filter(d => d)
+                        };
+                    }
+                    // パターン2: 従来通り（ダミー未設定）
+                    m = line.match(/^(?:\d+\.\s*)?(.*?)(?:【解答】|\[解答\])\s*(.*)$/);
+                    if (m) {
+                        return { q: m[1].trim(), a: m[2].trim(), dummies: [] };
+                    }
+                    return null;
                 }).filter(x => x);
 
                 if (parsed.length === 0) { alert("No valid data found in this sector."); return; }
@@ -661,42 +674,28 @@
                 const rawQText = this.isReverse ? q.a : q.q;
                 document.getElementById('target-word').innerHTML = this.formatChem(rawQText);
                 
-                const ans = this.isReverse ? q.q : q.a;
-                let globalPool = this.isReverse ? this.globalQuestions : this.globalAnswers;
-                let pool = globalPool.filter(x => x !== ans);
+               const ans = this.isReverse ? q.q : q.a;
+                let options = [ans];
 
-                pool.sort((a, b) => {
-                    let scoreA = 0; let scoreB = 0;
-                    scoreA -= Math.abs(a.length - ans.length);
-                    scoreB -= Math.abs(b.length - ans.length);
-                    const hasA = (str) => /A[:：]/.test(str);
-                    if (hasA(ans)) {
-                        if (hasA(a)) scoreA += 100; if (hasA(b)) scoreB += 100;
-                    } else {
-                        if (hasA(a)) scoreA -= 100; if (hasA(b)) scoreB -= 100;
+                // REVERSEモード以外で、手動ダミーが設定されている場合
+                if (!this.isReverse && q.dummies && q.dummies.length > 0) {
+                    let distractors = [...q.dummies].sort(() => Math.random() - 0.5).slice(0, 3);
+                    // ダミーが3つに満たない場合は、同じセクションから補充
+                    if (distractors.length < 3) {
+                        let localPool = this.masterQuestions.map(mq => mq.a).filter(x => x !== ans && !distractors.includes(x));
+                        let extra = localPool.sort(() => Math.random() - 0.5).slice(0, 3 - distractors.length);
+                        distractors.push(...extra);
                     }
-                    const hasIneq = (str) => /[<><＞＜]/.test(str);
-                    if (hasIneq(ans)) {
-                        if (hasIneq(a)) scoreA += 100; if (hasIneq(b)) scoreB += 100;
-                    } else {
-                        if (hasIneq(a)) scoreA -= 100; if (hasIneq(b)) scoreB -= 100;
-                    }
-                    return scoreB - scoreA; 
-                });
-
-                let topCandidates = pool.slice(0, 8).sort(() => Math.random() - 0.5);
-                let distractors = topCandidates.slice(0, 3);
-
-                if (!this.isReverse && /A[:：].*B[:：]/.test(ans)) {
-                    let swapped = ans.replace(/(A[:：])([^,、]+)([,、]\s*B[:：])(.+)/, '$1$4$3$2');
-                    if (swapped !== ans && !distractors.includes(swapped)) {
-                        distractors.pop(); distractors.push(swapped); 
-                    }
+                    options.push(...distractors);
+                } else {
+                    // ダミー未設定、またはREVERSEモードの場合は同セクションからランダム抽出
+                    let localPool = this.masterQuestions.map(mq => this.isReverse ? mq.q : mq.a).filter(x => x !== ans);
+                    let distractors = localPool.sort(() => Math.random() - 0.5).slice(0, 3);
+                    while (distractors.length < 3) distractors.push(`[Dummy] データ不足 ${distractors.length + 1}`);
+                    options.push(...distractors);
                 }
 
-                while (distractors.length < 3) distractors.push(`[Dummy] データ不足 ${distractors.length + 1}`);
-
-                let options = [ans, ...distractors].sort(() => Math.random() - 0.5);
+                options = options.sort(() => Math.random() - 0.5);
 
                 const container = document.getElementById('options-container');
                 container.innerHTML = '';
