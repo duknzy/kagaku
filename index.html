@@ -302,8 +302,7 @@
 
     <img id="custom-bg-img" src="" alt="">
 
-    <!-- HUD -->
-    <div id="stint-timer-hud" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md">
+    <div id="stint-timer-hud" onclick="quiz.toggleTimer()" class="fixed top-0 left-1/2 -translate-x-1/2 z-[100] bg-black/80 border-b-2 border-red-600 px-6 py-2 rounded-b-xl flex items-center gap-4 shadow-2xl backdrop-blur-md cursor-pointer hover:bg-black/90 transition-colors">
         <div class="flex flex-col items-start">
             <span class="text-[8px] text-red-500 font-bold uppercase tracking-tighter leading-none">Live Stint Time</span>
             <span id="stint-clock" class="f1-font text-white text-xl font-bold leading-none">00:00</span>
@@ -511,6 +510,7 @@
                 this.stintInterval = null;
                 this.stintActive = false;
                 this.isLocked = false; 
+                this.isManualPause = false;
 
                 this.applyConfig(); 
                 this.buildGlobalPool();
@@ -569,9 +569,18 @@
                     localStorage.setItem('chem_date', today);
                 }
                 this.updateHUD();
+                
+                // タブ切り替え時のオートストップ制御
                 document.addEventListener("visibilitychange", () => {
-                    if (document.hidden && this.stintActive) this.pauseTimer();
-                    else if (!document.hidden && this.stintActive) this.resumeTimer();
+                    if (document.hidden && this.stintActive) {
+                        clearInterval(this.stintInterval);
+                        this.stintInterval = null;
+                        const ind = document.getElementById('red-flag-indicator');
+                        if(ind) ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-600"></div><span class="text-[10px] text-red-600 font-bold uppercase">Red Flag</span>`;
+                    } else if (!document.hidden && this.stintActive) {
+                        // 手動ポーズ中でなければタイマー再開
+                        if (!this.isManualPause) this.resumeTimer();
+                    }
                 });
             }
 
@@ -763,8 +772,19 @@
                 document.getElementById('start-screen').classList.remove('hidden');
             }
 
+            toggleTimer() {
+                if (!this.stintActive) return;
+                if (this.isManualPause) {
+                    this.isManualPause = false;
+                    this.resumeTimer();
+                } else {
+                    this.isManualPause = true;
+                    this.pauseTimer();
+                }
+            }
+
             resumeTimer() {
-                this.pauseTimer();
+                clearInterval(this.stintInterval);
                 const ind = document.getElementById('red-flag-indicator');
                 ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-green-500 animate-pulse"></div><span class="text-[10px] text-green-500 font-bold uppercase">Green Flag</span>`;
                 this.stintInterval = setInterval(() => {
@@ -776,8 +796,10 @@
 
             pauseTimer() {
                 clearInterval(this.stintInterval);
+                this.stintInterval = null;
                 const ind = document.getElementById('red-flag-indicator');
-                if(ind) ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-red-600"></div><span class="text-[10px] text-red-600 font-bold uppercase">Red Flag</span>`;
+                // 手動ポーズ時はVSC（バーチャル・セーフティ・カー）表示にする
+                if(ind) ind.innerHTML = `<div class="w-2 h-2 rounded-full bg-yellow-500"></div><span class="text-[10px] text-yellow-500 font-bold uppercase">VSC (Paused)</span>`;
             }
 
             updateHUD() {
